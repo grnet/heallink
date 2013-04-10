@@ -1,0 +1,32 @@
+{% extends "poll/base.html" %}
+
+{% block title %}Καλάθι Επιλογών{% endblock %}
+
+{% block nav-cart %}active{% endblock %}
+
+{% block content %}
+  <h1>Καλάθι Επιλογών</h1>
+  {% if cart_item_list %}
+    <table class="table-striped">
+      <tr>
+        <th class="issn">ISSN</th>
+        <th class="title">Τίτλος</th>
+        <th class="downloads">Downloads</th>
+        <th class="url">URL</th>
+        <th class="publisher">Εκδότης</th>
+      </tr>
+      {% for cart_item in cart_item_list %}
+        <tr>
+          <td>{{ cart_item.journal.issn }}</td>
+          <td>{{ cart_item.journal.title }} {{ cart_item.journal.subject_area.name}}</td>
+          <td>{{ cart_item.journal.downloads }}</td>
+          <td><a href="{{ cart_item.journal.url }}">Σύνδεσμος</a></td>
+          <td>{{ cart_item.journal.publisher }}</td>        
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>Δεν έχουν επιλεγεί περιοδικά</p>
+  {% endif %}
+{% endblock %}
+
