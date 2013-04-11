@@ -32,19 +32,20 @@ $.ajaxSetup({
 
 $(document).ready(function(){
 
-    $(".add-remove-journal").on("click", function(event) {
+    $('.add-remove-journal').on('click', function(event) {
         var clicked = $(this);
-        var verb = "POST";
+        var verb = 'POST';
         if (!clicked.is(':checked')) {
-            verb = "DELETE";
+            verb = 'DELETE';
         }
-        var issn = clicked.attr("value");
+        var issn = clicked.attr('value');
+        var data = {
+            'issn': issn,
+        };
         $.ajax({
-            type: verb,
-            url: "/poll/cart-item/",
-            data: {
-                "issn": issn,
-            },
+            'type': verb,
+            'url': '/poll/cart-item/',
+            'data': JSON.stringify(data),
         });
     });
 

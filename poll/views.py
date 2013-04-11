@@ -28,7 +28,7 @@ def journals(request):
         else:
             journal_list['active'] = ''
         filtered_journals = Journal.objects.filter(subject_area=sa)
-        journals = filtered_journals.order_by('-downloads')
+        journals = filtered_journals.order_by('-downloads')[:50]
         for journal in journals:
             if journal.issn in journals_in_cart:
                 journal.in_cart = True
@@ -62,16 +62,17 @@ def cart_item(request):
     if not request.is_ajax():
         return redirect(journals)
     issn = json.loads(request.body)['issn']
-    print issn
+    journal = Journal.objects.filter(issn=issn)
+    if not journal.exists():
+        return redirect(journals)
     if request.method == 'POST':
-        journal = Journal.objects.filter(issn=issn)
-        if journal.exists():
-            if not cart.cart_item__set.filter(journal=journal).exists():
-                item = CartItem(cart=cart,
-                                journal=journal)
-                item.save()
+        if not cart.cart_item__set.filter(journal=journal).exists():
+            item = CartItem(cart=cart, journal=journal[0])
+            item.save()
     elif request.method == 'DELETE':
-        print 'Raw Data: "%s"' % request.body
+        cart_item_set = cart.cart_item__set.filter(journal=journal)
+        if cart_item_set.exists():
+            cart_item_set.all().delete()
     return HttpResponse("OK")
 
 @login_required
