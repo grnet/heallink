@@ -6,46 +6,49 @@
 
 {% block content %}
   <h1>Λίστα Περιοδικών</h1>
-  {% if subject_area_list and journal_lists %}
-    <ul class="nav nav-tabs">
-      {% for sa in subject_area_list %}
-        <li class={{ forloop.first|yesno:"active,"}}>
-          <a href="#sa{{forloop.counter0}}" data-toggle="tab">
-            Ομάδα {{ forloop.counter }}<br>
-          </a>
-        </li>
-      {% endfor %}          
-    </ul>
-    <div class="tab-content">
-      {% for journal_list in journal_lists %}
-        <div class="tab-pane {{ forloop.first|yesno:"active,"}}"
-             id="sa{{forloop.counter0}}">
-          <h4>{{ journal_list.subject_area }}</h4>             
-          <table class="table-striped">
-            <tr>
-              <th class="issn">ISSN</th>
-              <th class="title">Τίτλος</th>
-              <th class="downloads">Downloads</th>
-              <th class="url">URL</th>
-              <th class="publisher">Εκδότης</th>
-              <th class="add-remove-to-cart">Καλάθι</th>
-            </tr>
-            {% for journal in journal_list.journals %}
+  {% if journal_lists %}
+    <div class="tabbable">
+      <ul class="nav nav-tabs">
+        {% for journal_list in journal_lists %}
+          <li class="{{ journal_list.active }}">
+            <a href="#sa{{forloop.counter0}}" data-toggle="tab">
+              Ομάδα {{ forloop.counter }}<br>
+              </a>
+          </li>
+        {% endfor %}          
+      </ul>
+      <div class="tab-content">
+        {% for journal_list in journal_lists %}
+          <div class="tab-pane {{ journal_list.active }}"
+               id="sa{{forloop.counter0}}">
+            <h4>{{ journal_list.subject_area }}</h4>
+            <table class="table-striped">
               <tr>
-                <td>{{ journal.issn }}</td>
-                <td>{{ journal.title }}</td>
-                <td>{{ journal.downloads }}</td>
-                <td><a href="{{ journal.url }}">Σύνδεσμος</a></td>
-                <td>{{ journal.publisher }}</td>
-                <td align="center">
-                  <input type="checkbox"
-                         value="{{ journal.issn }}"
-                         class="add-remove-journal"/></td>
+                <th class="issn">ISSN</th>
+                <th class="title">Τίτλος</th>
+                <th class="downloads">Downloads</th>
+                <th class="url">URL</th>
+                <th class="publisher">Εκδότης</th>
+                <th class="add-remove-to-cart">Καλάθι</th>
               </tr>
-            {% endfor %}
-          </table>
-        </div>
-      {% endfor %}
+              {% for journal in journal_list.journals %}
+                <tr>
+                  <td>{{ journal.issn }}</td>
+                  <td>{{ journal.title }}</td>
+                  <td>{{ journal.downloads }}</td>
+                  <td><a href="{{ journal.url }}">Σύνδεσμος</a></td>
+                  <td>{{ journal.publisher }}</td>
+                  <td align="center">
+                    <input type="checkbox"
+                           value="{{ journal.issn }}"
+                           class="add-remove-journal"/>
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        {% endfor %}
+      </div>
     </div>
   {% else %}
     <p>Δεν βρέθηκαν περιοδικά</p>

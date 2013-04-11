@@ -12,14 +12,22 @@ from forms import LoginForm
 @login_required
 def journals(request):
     journal_lists = []
+    user = request.user
+    user_profile = user.user_profile
     subject_area_list = SubjectArea.objects.all()
-    for sa in subject_area_list:
+    active_subject_area = user_profile.subject_area
+    for i, sa in enumerate(subject_area_list):
+        journal_list = {}
+        if sa.id == active_subject_area.id:
+            journal_list['active'] = 'active'
+        else:
+            journal_list['active'] = ''
         filtered_journals = Journal.objects.filter(subject_area=sa)
         journals = filtered_journals.order_by('-downloads')
-        journal_lists.append({'subject_area': sa.name,
-                              'journals': journals})
+        journal_list['subject_area'] = sa.name
+        journal_list['journals'] = journals
+        journal_lists.append(journal_list)
     context = {
-        'subject_area_list': subject_area_list,
         'journal_lists': journal_lists
         }
     return render(request, 'poll/journals.html', context)
