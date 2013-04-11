@@ -9,14 +9,19 @@ from models import Journal, SubjectArea, Cart, CartItem
 
 from forms import LoginForm
 
+import json
+
 @login_required
 def journals(request):
     journal_lists = []
     user = request.user
     user_profile = user.user_profile
+    cart = user_profile.cart
+    cart_items = cart.cart_item__set.select_related('journal').all()
+    journals_in_cart = set([item.journal.issn for item in cart_items])
     subject_area_list = SubjectArea.objects.all()
     active_subject_area = user_profile.subject_area
-    for i, sa in enumerate(subject_area_list):
+    for sa in subject_area_list:
         journal_list = {}
         if sa.id == active_subject_area.id:
             journal_list['active'] = 'active'
@@ -24,6 +29,11 @@ def journals(request):
             journal_list['active'] = ''
         filtered_journals = Journal.objects.filter(subject_area=sa)
         journals = filtered_journals.order_by('-downloads')
+        for journal in journals:
+            if journal.issn in journals_in_cart:
+                journal.in_cart = True
+            else:
+                journal.in_cart = False
         journal_list['subject_area'] = sa.name
         journal_list['journals'] = journals
         journal_lists.append(journal_list)
@@ -45,10 +55,23 @@ def cart(request):
     return render(request, 'poll/cart.html', context)
 
 @login_required
-def add_remove_journal(request):
-    if request.is_ajax():
-        if request.method == 'POST':
-            print 'Raw Data: "%s"' % request.body
+def cart_item(request):
+    user = request.user
+    user_profile = user.user_profile
+    cart = user_profile.cart
+    if not request.is_ajax():
+        return redirect(journals)
+    issn = json.loads(request.body)['issn']
+    print issn
+    if request.method == 'POST':
+        journal = Journal.objects.filter(issn=issn)
+        if journal.exists():
+            if not cart.cart_item__set.filter(journal=journal).exists():
+                item = CartItem(cart=cart,
+                                journal=journal)
+                item.save()
+    elif request.method == 'DELETE':
+        print 'Raw Data: "%s"' % request.body
     return HttpResponse("OK")
 
 @login_required

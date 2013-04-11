@@ -26,26 +26,26 @@ class Journal(models.Model):
     publisher = models.ForeignKey(Publisher)
 
     def __unicode__(self):
-        return "{} {} {} {} {} {}".format(self.issn,
-                                          self.title,
-                                          self.url,
-                                          self.downloads,
-                                          self.subject_area,
-                                          self.publisher)
+        return u"{} {} {} {} {} {}".format(self.issn,
+                                           self.title,
+                                           self.url,
+                                           self.downloads,
+                                           self.subject_area,
+                                           self.publisher)
     
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)    
     modified_at = models.DateTimeField(auto_now=True)
     
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart)
+    cart = models.ForeignKey(Cart, related_name='cart_item__set')
     journal = models.ForeignKey(Journal)
     preference = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
-        return "{} {} {}".format(self.cart.__unicode__(),
+        return u"{} {} {}".format(self.cart.__unicode__(),
                                  self.journal.__unicode__(),
                                  self.preference.__unicode__())
     
@@ -54,5 +54,6 @@ class UserProfile(models.Model):
                                 unique=False)
     subject_area = models.ForeignKey(SubjectArea)
     cart = models.ForeignKey(Cart)
-    # def __unicode__(self):
-    #     return "{} {}".format(self.user.__unicode__(), self.subject_area)
+    
+    def __unicode__(self):
+        return u"{} {}".format(self.user, self.subject_area)

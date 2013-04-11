@@ -34,17 +34,16 @@ $(document).ready(function(){
 
     $(".add-remove-journal").on("click", function(event) {
         var clicked = $(this);
-        var add = false;
-        if (clicked.is(':checked')) {
-            add = true
+        var verb = "POST";
+        if (!clicked.is(':checked')) {
+            verb = "DELETE";
         }
         var issn = clicked.attr("value");
         $.ajax({
-            type: "POST",
-            url: "/poll/add-remove-journal/",
+            type: verb,
+            url: "/poll/cart-item/",
             data: {
                 "issn": issn,
-                "add": add,
             },
         });
     });

@@ -41,6 +41,9 @@
                   <td align="center">
                     <input type="checkbox"
                            value="{{ journal.issn }}"
+                           {% if journal.in_cart %}
+                             checked="checked"
+                           {% endif %}
                            class="add-remove-journal"/>
                   </td>
                 </tr>
