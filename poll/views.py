@@ -28,7 +28,7 @@ def journals(request):
         else:
             journal_list['active'] = ''
         filtered_journals = Journal.objects.filter(subject_area=sa)
-        journals = filtered_journals.order_by('-downloads')[:50]
+        journals = filtered_journals.order_by('-downloads')
         for journal in journals:
             if journal.issn in journals_in_cart:
                 journal.in_cart = True
