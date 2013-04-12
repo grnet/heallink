@@ -49,5 +49,23 @@ $(document).ready(function(){
         });
     });
 
+
+    $('.cart-item-up .cart-item.down .cart-item-top .cart-item-bottom').
+        on('click', function(event) {
+            event.preventDefault();
+            var clicked = $(this);
+            var href = clicked.attr('href');
+            $('#cart-item-update').attr('action', href);
+            $('#cart-item-update').submit();
+        });
+
+    $('.cart-item-delete').on('click', function(event) {
+        event.preventDefault();
+        var clicked = $(this);
+        var href = clicked.attr('href');
+        $('#cart-item-delete').attr('action', href);
+        $('#cart-item-delete').submit();
+    });
+    
 });
     

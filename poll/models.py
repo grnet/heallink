@@ -44,6 +44,13 @@ class CartItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
 
+    @staticmethod
+    def delete_set(to_update, cart_item_set):
+        cart_item_set.all().delete()
+        for cart_item in to_update:
+            cart_item.preference = cart_item.preference - 1
+            cart_item.save()
+    
     def __unicode__(self):
         return u"{} {} {}".format(self.cart.__unicode__(),
                                  self.journal.__unicode__(),

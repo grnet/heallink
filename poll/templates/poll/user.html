@@ -1,0 +1,15 @@
+{% extends "poll/base.html" %}
+
+{% block title %}Στοιχεία Χρήστη{% endblock %}
+
+{% block nav-cart %}active{% endblock %}
+
+{% block content %}
+  <h1>Στοιχεία Χρήστη</h1>
+  Όνομα: {{ user.first_name }}<br/>
+  Επώνυμο: {{ user.last_name }}<br/>
+  e-mail: {{ user.email }}<br/>
+  
+  Ερευνητική Περιοχή: {{ user_profile.subject_area }}
+{% endblock %}
+
