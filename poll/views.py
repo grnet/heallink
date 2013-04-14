@@ -114,6 +114,8 @@ def cart_item_up(request, issn):
     if cart_item_set.exists():
         to_move = cart_item_set.all()[0]
         old_preference = to_move.preference
+        if old_preference == 1:
+            return redirect('cart')
         to_update = cart.cart_item__set.filter(preference=old_preference-1)
         for cart_item in to_update:
             cart_item.preference = cart_item.preference + 1
@@ -132,8 +134,11 @@ def cart_item_down(request, issn):
         return redirect(cart)
     cart_item_set = cart.cart_item__set.filter(journal=journal)
     if cart_item_set.exists():
+        num_items = cart.cart_item__set.count()
         to_move = cart_item_set.all()[0]
         old_preference = to_move.preference
+        if old_preference == num_items:
+            return redirect('cart')
         to_update = cart.cart_item__set.filter(preference=old_preference+1)
         for cart_item in to_update:
             cart_item.preference = cart_item.preference - 1
