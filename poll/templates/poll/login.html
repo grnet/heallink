@@ -2,11 +2,11 @@
 
 {% block title %}HEAL-Link Είσοδος{% endblock %}
 
-{% block body %}
-  <body class="body-signin">
-
+{% block main %}
+<div id="wrap" class="body-signin">
+  <div class="form-signin-container">
     <div class="container">
-
+    
       <form class="form-signin" method="post">{% csrf_token %}
         {{ form.non_field_errors }}
         <h2 class="form-signin-heading">Στοιχεία Εισόδου</h2>
@@ -15,16 +15,18 @@
                placeholder="Διεύθυνση e-mail"
                name="username"
                id="id_username"
-               value="{{ form.email_address.value|default:'' }}">
+               value="{{ form.email_address.value|default:'' }}"/>
         {{ form.password.errors }}
         <input type="password" class="input-block-level"
                placeholder="Κωδικός"
                name="password"
-               id="id_password">
-        <button class="btn btn-large btn-primary" type="submit">Είσοδος</button>
+               id="id_password"/>
+         <button class="btn btn-large btn-primary"
+                 type="submit">Είσοδος</button>
       </form>
-
-    </div>
- {% endblock %}
-  </body>
+    </div> <!-- container -->
+  </div>
+  <div id="push"></div>
+</div> <!-- wrap -->
+{% endblock main %}
 </html>

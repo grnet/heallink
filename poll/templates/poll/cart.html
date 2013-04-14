@@ -1,11 +1,11 @@
 {% extends "poll/base.html" %}
 
-{% block title %}Καλάθι Επιλογών{% endblock %}
+{% block title %}Επιλογές{% endblock %}
 
 {% block nav-cart %}active{% endblock %}
 
 {% block content %}
-  <h1>Καλάθι Επιλογών</h1>
+  <h1>Επιλογές</h1>
   {% if cart_item_list %}
     <table class="table-striped cart-table">
       <tr>
@@ -29,7 +29,7 @@
             <td>
               <div class="btn-group">
                 <a class="btn btn-primary" href="#">
-                  <i class="icon-shopping-cart icon-white"></i></a>
+                  <i class="icon-list icon-white"></i></a>
                 <a class="btn btn-primary dropdown-toggle"
                    data-toggle="dropdown"
                    href="#"><span class="caret"></span>
@@ -85,3 +85,8 @@
   {% endif %}
 {% endblock %}
 
+<p/>
+
+{% block additional-credit %}
+Icons provided by <a href="http://glyphicons.com">Glyphicons</a>.
+{% endblock %}

@@ -14,15 +14,17 @@
 </head>
 {% endblock %}
 
-{% block body %}
 <body>
-  <div class="navbar navbar-inverse navbar-fixed-top">
+  {% block main %}
+  <div id="wrap">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
+          <button type="button" class="btn btn-navbar"
+                  data-toggle="collapse" data-target=".nav-collapse">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
           </button>
           <a class="brand" href="#">HEAL-LINK</a>
           <div class="nav-collapse collapse">
@@ -31,7 +33,7 @@
                 <a href={% url 'journals' %}>Περιοδικά</a>
               </li>
               <li class={% block nav-cart %}{% endblock %}>
-                <a href="/poll/cart">Καλάθι</a></li>
+                <a href="/poll/cart">Επιλογές</a></li>
               <li><a href="/poll/user">Χρήστης</a></li>
               <li><a href={% url 'logout' %}>Έξοδος</a></li>
             </ul>
@@ -39,12 +41,24 @@
         </div>
       </div>
     </div>
-  <div class="container" id="content">
-    {% block content %}
-    {% endblock %}
+    <div class="container" id="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+    <div id="push"></div>
   </div>
-{% endblock %}
-
+  {% endblock main %}
+  
+  <div id="footer">
+    <div class="container">
+      <p class="muted credit">
+        Greek Research and Technology Network. Code at
+        <a href="https://github.com/louridas/heallink/">Github</a>.
+        {% block additional-credit %}
+        {% endblock %}
+        </p>
+    </div>
+    
   <script src="{% static "poll/js/jquery-1.9.1.min.js" %}"></script>
   <script src="{% static "poll/js/bootstrap.min.js" %}"></script>
   <script src="{% static "poll/js/heallink.js" %}"></script>
