@@ -55,6 +55,14 @@ def cart(request):
     return render(request, 'poll/cart.html', context)
 
 @login_required
+def cart_empty(request):
+    user = request.user
+    user_profile = user.user_profile
+    cart = user_profile.cart
+    cart.empty()
+    return render(request, 'poll/cart.html')
+    
+@login_required
 def cart_item(request):
     user = request.user
     user_profile = user.user_profile

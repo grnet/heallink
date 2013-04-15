@@ -36,6 +36,12 @@ class Journal(models.Model):
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)    
     modified_at = models.DateTimeField(auto_now=True)
+
+    def empty(self):
+        self.cart_item__set.all().delete()
+
+    def __unicode__(self):
+        return u"{} {}".format(self.created_at, self.modified_at)
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='cart_item__set')

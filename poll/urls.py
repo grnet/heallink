@@ -4,6 +4,9 @@ from poll import views
 
 urlpatterns = patterns('',
                        url(r'journals/', views.journals, name="journals"),
+                       url(r'cart/empty',
+                           views.cart_empty,
+                           name="cart_empty"),
                        url(r'cart/', views.cart, name="cart"),
                        url(r'cart-item/(.+)/top',
                            views.cart_item_top,

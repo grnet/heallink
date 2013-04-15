@@ -5,72 +5,86 @@
 {% block nav-cart %}active{% endblock %}
 
 {% block content %}
-  <h1>Επιλογές</h1>
+  <div class="row-fluid">
+    <div class="span9"><h1>Επιλογές</h1></div>
+    <div class="span3 cart-trash">
+      {% if cart_item_list %}
+      <form id="cart-empty" action="/poll/cart/empty" method="post">
+        {% csrf_token %}
+        <button class="btn">
+          <i class="icon-trash"></i> Διαγραφή Όλων
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
   {% if cart_item_list %}
-    <table class="table-striped cart-table">
-      <tr>
-        <th class="issn">ISSN</th>
-        <th class="title">Τίτλος</th>
-        <th class="downloads">Downloads</th>
-        <th class="url">URL</th>
-        <th class="publisher">Εκδότης</th>
-        <th class="preference">Προτίμηση</th>
-        <th></th>
-      </tr>
-      {% for cart_item in cart_item_list %}
+    <div class="cart-table-container">
+      <table class="table-striped cart-table">
         <tr>
-          {% with issn=cart_item.journal.issn %}
-            <td class="cart-issn">{{ issn }}</td>
-            <td class="cart-title">{{ cart_item.journal.title }}</td>
-            <td class="cart-downloads">{{ cart_item.journal.downloads }}</td>
-            <td><a href="{{ cart_item.journal.url }}">Σύνδεσμος</a></td>
-            <td class="cart-publisher">{{ cart_item.journal.publisher }}</td>
-            <td class="cart-preference">{{ cart_item.preference }}</td>
-            <td>
-              <div class="btn-group">
-                <a class="btn btn-primary" href="#">
-                  <i class="icon-list icon-white"></i></a>
-                <a class="btn btn-primary dropdown-toggle"
-                   data-toggle="dropdown"
-                   href="#"><span class="caret"></span>
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a href="/poll/cart-item/{{ issn }}/top">
-                      <i class="icon-arrow-up"></i><i class="icon-arrow-up"></i>
-                      Πρώτο
-                    </a>
-                  </li>
-                  <li>
-                    <a class="cart-item-up"
-                       href="/poll/cart-item/{{ issn }}/up">
-                      <i class="icon-arrow-up"></i>
-                      <i class="icon-white"></i>Επάνω
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/poll/cart-item/{{ issn }}/down">
-                      <i class="icon-arrow-down"></i>
-                      <i class="icon-white"></i>
-                      Κάτω
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/poll/cart-item/{{ issn }}/bottom">
-                      <i class="icon-arrow-down"></i><i class="icon-arrow-down"></i>
-                      Τελευταίο
-                    </a>
-                  </li>
-                  <li class="divider"></li>
-                  <li><a href="/poll/cart-item/{{ issn }}/delete">
-                      <i class="icon-trash"></i>Διαγραφή</a>
-                  </li>
-                </ul>
-              </div>
+          <th class="issn">ISSN</th>
+          <th class="title">Τίτλος</th>
+          <th class="downloads">Downloads</th>
+          <th class="url">URL</th>
+          <th class="publisher">Εκδότης</th>
+          <th class="preference">Προτίμηση</th>
+          <th></th>
+        </tr>
+        {% for cart_item in cart_item_list %}
+          <tr>
+            {% with issn=cart_item.journal.issn %}
+              <td class="cart-issn">{{ issn }}</td>
+              <td class="cart-title">{{ cart_item.journal.title }}</td>
+              <td class="cart-downloads">{{ cart_item.journal.downloads }}</td>
+              <td><a href="{{ cart_item.journal.url }}">Σύνδεσμος</a></td>
+              <td class="cart-publisher">{{ cart_item.journal.publisher }}</td>
+              <td class="cart-preference">{{ cart_item.preference }}</td>
+              <td>
+                <div class="btn-group">
+                  <a class="btn btn-primary" href="#">
+                    <i class="icon-list icon-white"></i></a>
+                  <a class="btn btn-primary dropdown-toggle"
+                     data-toggle="dropdown"
+                     href="#"><span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="/poll/cart-item/{{ issn }}/top">
+                        <i class="icon-arrow-up"></i>
+                        <i class="icon-arrow-up"></i>Πρώτο
+                      </a>
+                    </li>
+                    <li>
+                      <a class="cart-item-up"
+                         href="/poll/cart-item/{{ issn }}/up">
+                        <i class="icon-arrow-up"></i>
+                        <i class="icon-white"></i>Επάνω
+                      </a>
+                    </li>
+                    <li>
+                      <a href="/poll/cart-item/{{ issn }}/down">
+                        <i class="icon-arrow-down"></i>
+                        <i class="icon-white"></i>Κάτω
+                      </a>
+                    </li>
+                    <li>
+                      <a href="/poll/cart-item/{{ issn }}/bottom">
+                        <i class="icon-arrow-down"></i>
+                        <i class="icon-arrow-down"></i>Τελευταίο
+                      </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="/poll/cart-item/{{ issn }}/delete">
+                        <i class="icon-trash"></i>Διαγραφή</a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            {% endwith %}            
           </tr>
-          {% endwith %}
-      {% endfor %}
-    </table>
+        {% endfor %}
+      </table>
+    </div>
     <div style="display:none;">
       <form id="cart-item-update" action="" method="put">
         <input type="submit" value="Submit">
