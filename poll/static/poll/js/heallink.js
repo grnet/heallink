@@ -32,6 +32,8 @@ $.ajaxSetup({
 
 $(document).ready(function(){
 
+    $("[rel='tooltip']").tooltip();
+    
     $('.add-remove-journal').on('click', function(event) {
         var clicked = $(this);
         var verb = 'POST';

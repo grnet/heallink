@@ -101,3 +101,11 @@ th.publisher {
     padding-top: 10px;
     padding-bottom: 10px;
 }
+
+.journal-table-container {
+    padding-top: 10px;
+}
+
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover {
+    background-color: lavender;
+}
