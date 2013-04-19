@@ -13,7 +13,7 @@
             class="active"
             {% endif %}
             >
-          <a href="/poll/journals/{{ subject_area.id }}/"
+          <a href="{% url 'journals_subject_area' subject_area.id %}"
              rel="tooltip"
              data-placement="top"
              title="{{ subject_area }}"
@@ -23,6 +23,29 @@
       {% endfor %}          
     </ul>
     <h4>{{ active_subject_area.name }}</h4>
+    {% if num_pages %}
+      <div class="pagination pagination-small">
+        <ul>
+          <li {% if offset == 0 %}
+              class="disabled"
+              {% endif %}
+              ><a href="{{ previous_page }}">&laquo;</a></li>
+          {% for page in num_pages %}          
+            <li {% if offset == page %}
+                class="active"
+                {% endif %}
+                >
+              <a href="{% url 'journals_subject_area_paged' active_subject_area.id page 200 %}">
+                {{ page|add:"1" }} </a>
+            </li>
+          {% endfor %}
+          <li {% if offset|add:"1" == num_pages|length %}
+              class="disabled"
+              {% endif %}
+              ><a href="{{ next_page }}">&raquo;</a></li>
+        </ul>
+      </div>
+    {% endif %}
     <div class="journal-table-container">
       <table class="table-striped">
         <tr>

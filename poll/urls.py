@@ -3,6 +3,9 @@ from django.conf.urls import patterns, url
 from poll import views
 
 urlpatterns = patterns('',
+                       url(r'journals/(\d+)/(\d+)/(\d+)/$',
+                           views.journals_subject_area,
+                           name="journals_subject_area_paged"),             
                        url(r'journals/(\d+)/$',
                            views.journals_subject_area,
                            name="journals_subject_area"),

@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+from django.core.urlresolvers import reverse
+
 from django.http import HttpResponse
 
 from models import Journal, SubjectArea, Cart, CartItem
@@ -10,6 +12,7 @@ from models import Journal, SubjectArea, Cart, CartItem
 from forms import LoginForm
 
 import json
+import math
 
 @login_required
 def journals(request):
@@ -19,7 +22,7 @@ def journals(request):
     return journals_subject_area(request, subject_area_id)
     
 @login_required
-def journals_subject_area(request, subject_area_id):
+def journals_subject_area(request, subject_area_id, offset="0", limit="200"):
     journal_lists = []
     user = request.user
     user_profile = user.user_profile
@@ -29,16 +32,35 @@ def journals_subject_area(request, subject_area_id):
     subject_areas = SubjectArea.objects.order_by('ordering').all()
     subject_area = SubjectArea.objects.get(pk=subject_area_id)
     filtered_journals = Journal.objects.filter(subject_area=subject_area)
-    journals = filtered_journals.order_by('-downloads')
+    num_journals = filtered_journals.count()
+    offset_i = int(offset)
+    limit_i = int(limit)    
+    num_pages = int(math.ceil(float(num_journals) / limit_i))
+    ordered_journals = filtered_journals.order_by('-downloads')
+    start = offset_i * limit_i
+    end = start + limit_i
+    journals = ordered_journals[start:end]
     for journal in journals:
         if journal.issn in journals_in_cart:
             journal.in_cart = True
         else:
             journal.in_cart = False
+    previous_page = reverse('journals_subject_area_paged',
+                            args=(subject_area_id,
+                                  max(0, offset_i - 1),
+                                  limit))
+    next_page = reverse('journals_subject_area_paged',
+                        args=(subject_area_id,
+                              min(offset_i + 1, num_pages - 1),
+                              limit))
     context = {
         'journal_list': journals,
         'subject_area_list': subject_areas,
         'active_subject_area': subject_area,
+        'num_pages': range(num_pages),
+        'offset': offset_i,
+        'previous_page': previous_page,
+        'next_page': next_page,
         }
     return render(request, 'poll/journals.html', context)
     

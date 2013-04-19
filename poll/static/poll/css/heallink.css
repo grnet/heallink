@@ -103,7 +103,7 @@ th.publisher {
 }
 
 .journal-table-container, .cart-table-container {
-    padding-top: 10px;
+    padding-top: 0px;
 }
 
 .nav-tabs > .active > a, .nav-tabs > .active > a:hover {
