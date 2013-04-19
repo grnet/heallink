@@ -13,32 +13,32 @@ import json
 
 @login_required
 def journals(request):
+    user = request.user
+    user_profile = user.user_profile
+    subject_area_id = user_profile.subject_area.id
+    return journals_subject_area(request, subject_area_id)
+    
+@login_required
+def journals_subject_area(request, subject_area_id):
     journal_lists = []
     user = request.user
     user_profile = user.user_profile
     cart = user_profile.cart
     cart_items = cart.cart_item__set.select_related('journal').all()
     journals_in_cart = set([item.journal.issn for item in cart_items])
-    subject_area_list = SubjectArea.objects.all()
-    active_subject_area = user_profile.subject_area
-    for sa in subject_area_list:
-        journal_list = {}
-        if sa.id == active_subject_area.id:
-            journal_list['active'] = 'active'
+    subject_areas = SubjectArea.objects.order_by('ordering').all()
+    subject_area = SubjectArea.objects.get(pk=subject_area_id)
+    filtered_journals = Journal.objects.filter(subject_area=subject_area)
+    journals = filtered_journals.order_by('-downloads')
+    for journal in journals:
+        if journal.issn in journals_in_cart:
+            journal.in_cart = True
         else:
-            journal_list['active'] = ''
-        filtered_journals = Journal.objects.filter(subject_area=sa)
-        journals = filtered_journals.order_by('-downloads')
-        for journal in journals:
-            if journal.issn in journals_in_cart:
-                journal.in_cart = True
-            else:
-                journal.in_cart = False
-        journal_list['subject_area'] = sa.name
-        journal_list['journals'] = journals
-        journal_lists.append(journal_list)
+            journal.in_cart = False
     context = {
-        'journal_lists': journal_lists
+        'journal_list': journals,
+        'subject_area_list': subject_areas,
+        'active_subject_area': subject_area,
         }
     return render(request, 'poll/journals.html', context)
     

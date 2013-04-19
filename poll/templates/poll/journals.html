@@ -6,58 +6,51 @@
 
 {% block content %}
   <h1>Λίστα Περιοδικών</h1>
-  {% if journal_lists %}
-    <div class="tabbable">
-      <ul class="nav nav-tabs">
-        {% for journal_list in journal_lists %}
-          <li class="{{ journal_list.active }} ">
-            <a href="#sa{{forloop.counter0}}"
-               rel="tooltip"
-               data-toggle="tab"
-               data-placement="top"
-               title="{{ journal_list.subject_area }}"
-               >Ομάδα {{ forloop.counter }}<br>
-              </a>
-          </li>
-        {% endfor %}          
-      </ul>
-      <div class="tab-content">
-        {% for journal_list in journal_lists %}
-          <div class="tab-pane {{ journal_list.active }}"
-               id="sa{{forloop.counter0}}">
-            <h4>{{ journal_list.subject_area }}</h4>
-            <div class="journal-table-container">
-              <table class="table-striped">
-                <tr>
-                  <th class="issn">ISSN</th>
-                  <th class="title">Τίτλος</th>
-                  <th class="downloads">Downloads</th>
-                  <th class="url">URL</th>
-                  <th class="publisher">Εκδότης</th>
-                  <th class="add-remove-to-cart">Καλάθι</th>
-                </tr>
-                {% for journal in journal_list.journals %}
-                  <tr>
-                    <td>{{ journal.issn }}</td>
-                    <td>{{ journal.title }}</td>
-                    <td>{{ journal.downloads }}</td>
-                    <td><a href="{{ journal.url }}">Σύνδεσμος</a></td>
-                    <td>{{ journal.publisher }}</td>
-                    <td align="center">
-                      <input type="checkbox"
-                             value="{{ journal.issn }}"
-                             {% if journal.in_cart %}
-                               checked="checked"
-                             {% endif %}
-                             class="add-remove-journal"/>
-                    </td>
-                  </tr>
-                {% endfor %}
-                </table>
-            </div>
-          </div>
+  {% if journal_list %}
+    <ul class="nav nav-tabs">
+      {% for subject_area in subject_area_list  %}
+        <li {% if subject_area.id == active_subject_area.id %}
+            class="active"
+            {% endif %}
+            >
+          <a href="/poll/journals/{{ subject_area.id }}/"
+             rel="tooltip"
+             data-placement="top"
+             title="{{ subject_area }}"
+             >Ομάδα {{ forloop.counter }}<br>
+             </a>
+        </li>
+      {% endfor %}          
+    </ul>
+    <h4>{{ active_subject_area.name }}</h4>
+    <div class="journal-table-container">
+      <table class="table-striped">
+        <tr>
+          <th class="issn">ISSN</th>
+          <th class="title">Τίτλος</th>
+          <th class="downloads">Downloads</th>
+          <th class="url">URL</th>
+          <th class="publisher">Εκδότης</th>
+          <th class="add-remove-to-cart">Καλάθι</th>
+        </tr>
+        {% for journal in journal_list %}
+          <tr>
+            <td>{{ journal.issn }}</td>
+            <td>{{ journal.title }}</td>
+            <td>{{ journal.downloads }}</td>
+            <td><a href="{{ journal.url }}">Σύνδεσμος</a></td>
+            <td>{{ journal.publisher }}</td>
+            <td align="center">
+              <input type="checkbox"
+                     value="{{ journal.issn }}"
+                     {% if journal.in_cart %}
+                       checked="checked"
+                     {% endif %}
+                     class="add-remove-journal"/>
+            </td>
+          </tr>
         {% endfor %}
-      </div>
+      </table>
     </div>
   {% else %}
     <p>Δεν βρέθηκαν περιοδικά</p>
