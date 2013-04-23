@@ -18,7 +18,9 @@ OFFSET = 0
 LIMIT = 200
 
 def paginate(offset, limit, num_items, url_name, *url_args):
-    num_pages = max(1, int(math.ceil(float(num_items) / limit)))
+    num_pages = int(math.ceil(float(num_items) / limit))
+    if num_pages == 0:
+        num_pages = 1
     args = url_args + (max(0, offset - 1), limit)
     previous_page = reverse(url_name, args=args)
     args = url_args + (min(offset + 1, num_pages - 1), limit)
