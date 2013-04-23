@@ -14,6 +14,21 @@ from forms import LoginForm
 import json
 import math
 
+OFFSET = 0 
+LIMIT = 200
+
+def paginate(offset, limit, num_items, url_name, *url_args):
+    num_pages = max(1, int(math.ceil(float(num_items) / limit)))
+    args = url_args + (max(0, offset - 1), limit)
+    previous_page = reverse(url_name, args=args)
+    args = url_args + (min(offset + 1, num_pages - 1), limit)
+    next_page = reverse(url_name, args=args)
+    start = offset * limit
+    end = start + limit
+    page_urls = [reverse(url_name, args=(url_args + (page, limit)))
+                 for page in range(num_pages)]
+    return (start, end, previous_page, next_page, num_pages, page_urls)
+
 @login_required
 def journals(request):
     user = request.user
@@ -22,47 +37,71 @@ def journals(request):
     return journals_subject_area(request, subject_area_id)
     
 @login_required
-def journals_subject_area(request, subject_area_id, offset="0", limit="200"):
-    journal_lists = []
+def journals_subject_area(request, subject_area_id, offset=None, limit=None):
     user = request.user
     user_profile = user.user_profile
-    cart = user_profile.cart
-    cart_items = cart.cart_item__set.select_related('journal').all()
-    journals_in_cart = set([item.journal.issn for item in cart_items])
     subject_areas = SubjectArea.objects.order_by('ordering').all()
     subject_area = SubjectArea.objects.get(pk=subject_area_id)
     filtered_journals = Journal.objects.filter(subject_area=subject_area)
     num_journals = filtered_journals.count()
-    offset_i = int(offset)
-    limit_i = int(limit)    
-    num_pages = int(math.ceil(float(num_journals) / limit_i))
     ordered_journals = filtered_journals.order_by('-downloads')
-    start = offset_i * limit_i
-    end = start + limit_i
+    if offset is None:
+        offset = OFFSET
+    else:
+        offset = int(offset)
+    if limit is None:
+        limit = LIMIT
+    else:
+        limit = int(limit)
+    paging = paginate(offset, limit, num_journals,
+                      'journals_subject_area_paged', subject_area_id)
+    (start, end, previous_page, next_page, num_pages, page_urls) = paging
     journals = ordered_journals[start:end]
-    for journal in journals:
-        if journal.issn in journals_in_cart:
-            journal.in_cart = True
-        else:
-            journal.in_cart = False
-    previous_page = reverse('journals_subject_area_paged',
-                            args=(subject_area_id,
-                                  max(0, offset_i - 1),
-                                  limit))
-    next_page = reverse('journals_subject_area_paged',
-                        args=(subject_area_id,
-                              min(offset_i + 1, num_pages - 1),
-                              limit))
+    user_profile.mark_in_cart(journals)
     context = {
         'journal_list': journals,
         'subject_area_list': subject_areas,
         'active_subject_area': subject_area,
         'num_pages': range(num_pages),
-        'offset': offset_i,
+        'page_urls': page_urls,
+        'offset': offset,
         'previous_page': previous_page,
         'next_page': next_page,
         }
     return render(request, 'poll/journals.html', context)
+
+@login_required
+def search_journals(request, offset=None, limit=None):
+    user = request.user
+    user_profile = user.user_profile
+    query = request.GET.get('q', '')
+    if query == '':
+        return render(request, 'poll/search_journals.html', {})
+    filtered_journals = Journal.objects.filter(title__icontains=query)
+    ordered_journals = filtered_journals.order_by('-downloads')
+    num_journals = filtered_journals.count()
+    if offset is None:
+        offset = OFFSET
+    else:
+        offset = int(offset)
+    if limit is None:
+        limit = LIMIT
+    else:
+        limit = int(limit)
+    paging = paginate(offset, limit, num_journals, 'search_journals')
+    (start, end, previous_page, next_page, num_pages, page_urls) = paging
+    journals = ordered_journals[start:end]
+    user_profile.mark_in_cart(journals)
+    context = {
+        'journal_list': journals,
+        'query': query,
+        'num_pages': range(num_pages),
+        'page_urls': page_urls,
+        'offset': offset,
+        'previous_page': previous_page,
+        'next_page': next_page,        
+    }
+    return render(request, 'poll/search_journals.html', context)
     
 @login_required
 def cart(request):

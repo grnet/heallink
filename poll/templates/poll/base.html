@@ -32,9 +32,13 @@
               <li class={% block nav-journals %}{% endblock %}>
                 <a href={% url 'journals' %}>Περιοδικά</a>
               </li>
+              <li class={% block nav-search %}{% endblock %}>
+                <a href={% url 'search_journals' %}>Αναζήτηση</a>
+              </li>
               <li class={% block nav-cart %}{% endblock %}>
                 <a href="/poll/cart">Επιλογές</a></li>
-              <li><a href="/poll/user">Χρήστης</a></li>
+              <li class={% block nav-user %}{% endblock %}>
+                <a href="/poll/user">Χρήστης</a></li>
               <li><a href={% url 'logout' %}>Έξοδος</a></li>
             </ul>
           </div><!--/.nav-collapse -->

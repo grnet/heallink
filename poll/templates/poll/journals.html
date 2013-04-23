@@ -23,58 +23,7 @@
       {% endfor %}          
     </ul>
     <h4>{{ active_subject_area.name }}</h4>
-    {% if num_pages %}
-      <div class="pagination pagination-small">
-        <ul>
-          <li {% if offset == 0 %}
-              class="disabled"
-              {% endif %}
-              ><a href="{{ previous_page }}">&laquo;</a></li>
-          {% for page in num_pages %}          
-            <li {% if offset == page %}
-                class="active"
-                {% endif %}
-                >
-              <a href="{% url 'journals_subject_area_paged' active_subject_area.id page 200 %}">
-                {{ page|add:"1" }} </a>
-            </li>
-          {% endfor %}
-          <li {% if offset|add:"1" == num_pages|length %}
-              class="disabled"
-              {% endif %}
-              ><a href="{{ next_page }}">&raquo;</a></li>
-        </ul>
-      </div>
-    {% endif %}
-    <div class="journal-table-container">
-      <table class="table-striped">
-        <tr>
-          <th class="issn">ISSN</th>
-          <th class="title">Τίτλος</th>
-          <th class="downloads">Downloads</th>
-          <th class="url">URL</th>
-          <th class="publisher">Εκδότης</th>
-          <th class="add-remove-to-cart">Καλάθι</th>
-        </tr>
-        {% for journal in journal_list %}
-          <tr>
-            <td>{{ journal.issn }}</td>
-            <td>{{ journal.title }}</td>
-            <td>{{ journal.downloads }}</td>
-            <td><a href="{{ journal.url }}">Σύνδεσμος</a></td>
-            <td>{{ journal.publisher }}</td>
-            <td align="center">
-              <input type="checkbox"
-                     value="{{ journal.issn }}"
-                     {% if journal.in_cart %}
-                       checked="checked"
-                     {% endif %}
-                     class="add-remove-journal"/>
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
+    {% include "poll/journals_table.html" %}
   {% else %}
     <p>Δεν βρέθηκαν περιοδικά</p>
   {% endif %}

@@ -24,7 +24,7 @@ class Journal(models.Model):
     downloads = models.IntegerField(null=True)
     subject_area = models.ForeignKey(SubjectArea)
     publisher = models.ForeignKey(Publisher)
-
+        
     def __unicode__(self):
         return u"{} {} {} {} {} {}".format(self.issn,
                                            self.title,
@@ -67,6 +67,17 @@ class UserProfile(models.Model):
                                 unique=False)
     subject_area = models.ForeignKey(SubjectArea)
     cart = models.ForeignKey(Cart)
+
+    def mark_in_cart(self, journals):
+        cart = self.cart
+        cart_items = cart.cart_item__set.select_related('journal').all()
+        journals_in_cart = set([item.journal.issn for item in cart_items])
+        for journal in journals:
+            if journal.issn in journals_in_cart:
+                journal.in_cart = True
+            else:
+                journal.in_cart = False
+        return journals
     
     def __unicode__(self):
         return u"{} {}".format(self.user, self.subject_area)
