@@ -1,0 +1,26 @@
+{% extends "poll/base.html" %}
+
+{% block title %}Αναζήτηση{% endblock %}
+
+{% block nav-search %}active{% endblock %}
+
+{% block content %}
+
+  <form class="form-search" action="{% url 'search_journals' %}" method="get">
+    <fieldset>
+      <legend>Αναζήτηση περιοδικών</legend>
+      <input type="text" class="input-medium search-query" name="q"></input>
+      <button type="submit" class="btn">Υποβολή</button>
+    </fieldset>
+  </form>
+
+  <div class="search-results">
+    
+    {% if journal_list %}
+      Αναζήτηση για {{ query }}
+      {% include "poll/journals_table.html" %}
+    {% endif %}
+  </div>
+  
+{% endblock %}
+
