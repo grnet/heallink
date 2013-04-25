@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+
+from django.contrib.auth.hashers import make_password
 
 from django.core.urlresolvers import reverse
 
@@ -9,13 +11,18 @@ from django.http import HttpResponse
 
 from models import Journal, SubjectArea, Cart, CartItem
 
-from forms import LoginForm
+from forms import LoginForm, FirstTimeForm, UserForm
 
 import json
 import math
 
 OFFSET = 0 
 LIMIT = 200
+
+
+def not_first_time(user):
+    user_profile = user.user_profile
+    return not user_profile.first_time
 
 def paginate(offset, limit, num_items, url_name, *url_args):
     num_pages = int(math.ceil(float(num_items) / limit))
@@ -31,14 +38,16 @@ def paginate(offset, limit, num_items, url_name, *url_args):
                  for page in range(num_pages)]
     return (start, end, previous_page, next_page, num_pages, page_urls)
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def journals(request):
     user = request.user
     user_profile = user.user_profile
     subject_area_id = user_profile.subject_area.id
     return journals_subject_area(request, subject_area_id)
     
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def journals_subject_area(request, subject_area_id, offset=None, limit=None):
     user = request.user
     user_profile = user.user_profile
@@ -72,7 +81,8 @@ def journals_subject_area(request, subject_area_id, offset=None, limit=None):
         }
     return render(request, 'poll/journals.html', context)
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def search_journals(request, offset=None, limit=None):
     user = request.user
     user_profile = user.user_profile
@@ -105,7 +115,8 @@ def search_journals(request, offset=None, limit=None):
     }
     return render(request, 'poll/search_journals.html', context)
     
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart(request):
     user = request.user
     user_profile = user.user_profile
@@ -117,7 +128,8 @@ def cart(request):
     }
     return render(request, 'poll/cart.html', context)
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_empty(request):
     user = request.user
     user_profile = user.user_profile
@@ -125,7 +137,8 @@ def cart_empty(request):
     cart.empty()
     return render(request, 'poll/cart.html')
     
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_item(request):
     user = request.user
     user_profile = user.user_profile
@@ -152,7 +165,8 @@ def cart_item(request):
             CartItem.delete_set(to_update, cart_item_set)
     return HttpResponse("OK")
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_item_top(request, issn):
     user = request.user
     user_profile = user.user_profile
@@ -171,9 +185,10 @@ def cart_item_top(request, issn):
             cart_item.save()
         new_top.preference = 1
         new_top.save()
-    return redirect('cart')
+    return redirect(cart)
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_item_up(request, issn):
     user = request.user
     user_profile = user.user_profile
@@ -186,16 +201,17 @@ def cart_item_up(request, issn):
         to_move = cart_item_set.all()[0]
         old_preference = to_move.preference
         if old_preference == 1:
-            return redirect('cart')
+            return redirect(cart)
         to_update = cart.cart_item__set.filter(preference=old_preference-1)
         for cart_item in to_update:
             cart_item.preference = cart_item.preference + 1
             cart_item.save()
         to_move.preference = old_preference - 1
         to_move.save()
-    return redirect('cart')
+    return redirect(cart)
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_item_down(request, issn):
     user = request.user
     user_profile = user.user_profile
@@ -209,16 +225,17 @@ def cart_item_down(request, issn):
         to_move = cart_item_set.all()[0]
         old_preference = to_move.preference
         if old_preference == num_items:
-            return redirect('cart')
+            return redirect(cart)
         to_update = cart.cart_item__set.filter(preference=old_preference+1)
         for cart_item in to_update:
             cart_item.preference = cart_item.preference - 1
             cart_item.save()
         to_move.preference = old_preference + 1
         to_move.save()
-    return redirect('cart')
+    return redirect(cart)
     
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_item_bottom(request, issn):
     user = request.user
     user_profile = user.user_profile
@@ -238,9 +255,10 @@ def cart_item_bottom(request, issn):
             cart_item.save()
         new_bottom.preference = num_items
         new_bottom.save()
-    return redirect('cart')
+    return redirect(cart)
 
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def cart_item_delete(request, issn):
     user = request.user
     user_profile = user.user_profile
@@ -253,16 +271,36 @@ def cart_item_delete(request, issn):
         old_preference = cart_item_set[0].preference
         to_update = cart.cart_item__set.filter(preference__gt=old_preference)
         CartItem.delete_set(to_update, cart_item_set)
-    return redirect('cart')
+    return redirect(cart)
         
-@login_required
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
 def user(request):
     user = request.user
     user_profile = user.user_profile
-    context = {'user': user,
-               'user_profile': user_profile,
-               }
-    return render(request, 'poll/user.html', context)
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            password = form.cleaned_data['password']            
+            confirm_password = form.cleaned_data['confirm_password']
+            subject_area_id = int(form.cleaned_data['subject_area'])
+            user.first_name = first_name
+            user.last_name = last_name
+            user_profile.subject_area_id = subject_area_id
+            if len(password) > 0 and password == confirm_password:
+                user.password = make_password(password)
+            user.save()
+            user_profile.save()
+    else:
+        form = UserForm(initial = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'subject_area_id': user_profile.subject_area_id,
+        })
+    return render(request, 'poll/user.html', {'form': form,})
     
 def login_user(request):
     if request.method == 'POST':
@@ -274,7 +312,11 @@ def login_user(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return redirect('journals')
+                    user_profile = user.user_profile
+                    if not user_profile.first_time:
+                        return redirect(first_time)
+                    else:
+                        return redirect(journals)
                 else:
                     form.non_field_errors = 'Account disabled'
             else:
@@ -288,4 +330,23 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('login')
-    
+
+@login_required(login_url='login')
+def first_time(request):
+    if request.method == 'POST':
+        form = FirstTimeForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            if user is not None:
+                user_profile = user.user_profile
+                subject_area_id = int(form.cleaned_data['subject_area'])
+                user_profile.subject_area_id = subject_area_id
+                user_profile.save()
+                return redirect(journals)
+            else:
+                form.non_field_errors = 'Invalid user'
+        else:
+            form.non_field_errors = 'Invalid Subject Area'
+    else:
+        form = FirstTimeForm()
+    return render(request, 'poll/first_time.html', {'form': form,})

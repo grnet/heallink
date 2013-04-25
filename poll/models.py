@@ -8,6 +8,10 @@ class SubjectArea(models.Model):
     def __unicode__(self):
         return self.name
 
+    @staticmethod
+    def get_subject_areas():
+        return [(sa.id, sa.name) for sa in SubjectArea.objects.all()]
+        
     class Meta:
         ordering = ["ordering"]
         
@@ -66,6 +70,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(authmodels.User, related_name="user_profile",
                                 unique=False)
     subject_area = models.ForeignKey(SubjectArea)
+    first_time = models.BooleanField(default=False)
     cart = models.ForeignKey(Cart)
 
     def mark_in_cart(self, journals):

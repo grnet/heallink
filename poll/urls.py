@@ -36,4 +36,7 @@ urlpatterns = patterns('',
                        url(r'user/', views.user, name="user"),
                        url(r'login/', views.login_user, name="login"),
                        url(r'logout/', views.logout_user, name="logout"),
+                       url(r'first_time/',
+                           views.first_time,
+                           name="first_time"),
                        )
