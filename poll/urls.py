@@ -41,3 +41,4 @@ urlpatterns = patterns('',
                            name="first_time"),
                        url(r'help/', views.help, name="help"),
                        )
+
