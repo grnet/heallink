@@ -1,0 +1,28 @@
+{% extends "poll/base.html" %}
+
+{% block title %}HEAL-Link Επιλογή Βασικής Ομάδας{% endblock %}
+
+{% block main %}
+<div id="wrap" class="body-first-time">
+  <div class="form-first-time-container">
+    <div class="container">
+    
+      <form class="form-first-time" method="post">{% csrf_token %}
+        {{ form.non_field_errors }}
+        <fieldset>
+          <legend>Επιλογή Βασικής Ομάδας</legend>
+          <label for="id_subject_area">Βασική Ομάδα:</label>
+          {{ form.subject_area}}
+          <div>
+            <button class="btn btn-large btn-primary"
+                    type="submit">Υποβολή</button>
+          </div>
+        </fieldset>
+      </form>
+      
+    </div> <!-- container -->
+  </div>
+  <div id="push"></div>
+</div> <!-- wrap -->
+{% endblock main %}
+</html>

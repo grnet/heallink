@@ -350,3 +350,8 @@ def first_time(request):
     else:
         form = FirstTimeForm()
     return render(request, 'poll/first_time.html', {'form': form,})
+
+@login_required(login_url='login')
+@user_passes_test(not_first_time, login_url='first_time')
+def help(request):
+    return render(request, 'poll/help.html')
