@@ -42,13 +42,13 @@ class Cart(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
     def empty(self):
-        self.cart_item__set.all().delete()
+        self.cart_item_set.all().delete()
 
     def __unicode__(self):
         return u"{} {}".format(self.created_at, self.modified_at)
     
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, related_name='cart_item__set')
+    cart = models.ForeignKey(Cart, related_name='cart_item_set')
     journal = models.ForeignKey(Journal)
     preference = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -70,12 +70,12 @@ class UserProfile(models.Model):
     user = models.OneToOneField(authmodels.User, related_name="user_profile",
                                 unique=False)
     subject_area = models.ForeignKey(SubjectArea)
-    first_time = models.BooleanField(default=False)
+    first_time = models.BooleanField(default=True)
     cart = models.ForeignKey(Cart)
 
     def mark_in_cart(self, journals):
         cart = self.cart
-        cart_items = cart.cart_item__set.select_related('journal').all()
+        cart_items = cart.cart_item_set.select_related('journal').all()
         journals_in_cart = set([item.journal.issn for item in cart_items])
         for journal in journals:
             if journal.issn in journals_in_cart:
@@ -83,6 +83,26 @@ class UserProfile(models.Model):
             else:
                 journal.in_cart = False
         return journals
-    
+
+    def initialize_cart(self, subject_area_id):
+        if self.cart is not None:
+            self.cart.cart_item_set.all().delete()
+        if self.cart_id is None or self.cart_id == 0:
+            cart = Cart()
+            cart.save()
+            self.cart = cart
+            self.save()
+        self.subject_area_id = subject_area_id
+        journals = Journal.objects.filter(subject_area_id=subject_area_id)
+        top_journals = journals.order_by('-downloads')[:100]
+        for i, journal in enumerate(top_journals):
+            cart_item = CartItem(cart=self.cart,
+                                 journal=journal,
+                                 preference=i+1)
+            cart_item.save()
+        self.first_time = False
+        self.save()
+
+        
     def __unicode__(self):
         return u"{} {}".format(self.user, self.subject_area)
