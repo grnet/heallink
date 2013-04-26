@@ -169,3 +169,9 @@ LOGGING = {
         },
     }
 }
+
+# useful trick for custom settings
+try:
+    from local_settings import *
+except ImportError:
+    pass
