@@ -150,11 +150,11 @@ def cart_item(request):
     user_profile = user.user_profile
     cart = user_profile.cart
     if not request.is_ajax():
-        return redirect(journals)
+        return redirect('journals')
     issn = json.loads(request.body)['issn']
     journal = Journal.objects.filter(issn=issn)
     if not journal.exists():
-        return redirect(journals)
+        return redirect('journals')
     if request.method == 'POST':
         number_of_items = cart.cart_item_set.count()
         if not cart.cart_item_set.filter(journal=journal).exists():
@@ -179,7 +179,7 @@ def cart_item_top(request, issn):
     cart = user_profile.cart
     journal = Journal.objects.filter(issn=issn)
     if not journal.exists():
-        return redirect(cart)
+        return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
     if cart_item_set.exists():
         new_top = cart_item_set.all()[0]
@@ -191,7 +191,7 @@ def cart_item_top(request, issn):
             cart_item.save()
         new_top.preference = 1
         new_top.save()
-    return redirect(cart)
+    return redirect('cart')
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
@@ -201,20 +201,20 @@ def cart_item_up(request, issn):
     cart = user_profile.cart
     journal = Journal.objects.filter(issn=issn)
     if not journal.exists():
-        return redirect(cart)
+        return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
     if cart_item_set.exists():
         to_move = cart_item_set.all()[0]
         old_preference = to_move.preference
         if old_preference == 1:
-            return redirect(cart)
+            return redirect('cart')
         to_update = cart.cart_item_set.filter(preference=old_preference-1)
         for cart_item in to_update:
             cart_item.preference = cart_item.preference + 1
             cart_item.save()
         to_move.preference = old_preference - 1
         to_move.save()
-    return redirect(cart)
+    return redirect('cart')
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
@@ -224,21 +224,21 @@ def cart_item_down(request, issn):
     cart = user_profile.cart
     journal = Journal.objects.filter(issn=issn)
     if not journal.exists():
-        return redirect(cart)
+        return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
     if cart_item_set.exists():
         num_items = cart.cart_item_set.count()
         to_move = cart_item_set.all()[0]
         old_preference = to_move.preference
         if old_preference == num_items:
-            return redirect(cart)
+            return redirect('cart')
         to_update = cart.cart_item_set.filter(preference=old_preference+1)
         for cart_item in to_update:
             cart_item.preference = cart_item.preference - 1
             cart_item.save()
         to_move.preference = old_preference + 1
         to_move.save()
-    return redirect(cart)
+    return redirect('cart')
     
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
@@ -248,7 +248,7 @@ def cart_item_bottom(request, issn):
     cart = user_profile.cart
     journal = Journal.objects.filter(issn=issn)
     if not journal.exists():
-        return redirect(cart)
+        return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
     if cart_item_set.exists():
         num_items = cart.cart_item_set.count()
@@ -261,7 +261,7 @@ def cart_item_bottom(request, issn):
             cart_item.save()
         new_bottom.preference = num_items
         new_bottom.save()
-    return redirect(cart)
+    return redirect('cart')
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
@@ -271,13 +271,13 @@ def cart_item_delete(request, issn):
     cart = user_profile.cart
     journal = Journal.objects.filter(issn=issn)
     if not journal.exists():
-        return redirect(cart)
+        return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
     if cart_item_set.exists():
         old_preference = cart_item_set[0].preference
         to_update = cart.cart_item_set.filter(preference__gt=old_preference)
         CartItem.delete_set(to_update, cart_item_set)
-    return redirect(cart)
+    return redirect('cart')
         
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
@@ -320,9 +320,9 @@ def login_user(request):
                     login(request, user)
                     user_profile = user.user_profile
                     if user_profile.first_time == True:
-                        return redirect(first_time)
+                        return redirect('first_time')
                     else:
-                        return redirect(journals)
+                        return redirect('journals')
                 else:
                     form.non_field_errors = 'Account disabled'
             else:
@@ -347,7 +347,7 @@ def first_time(request):
                 subject_area_id = int(form.cleaned_data['subject_area'])
                 user_profile = user.user_profile
                 user_profile.initialize_cart(subject_area_id)
-                return redirect(journals)
+                return redirect('journals')
             else:
                 form.non_field_errors = 'Invalid user'
         else:
