@@ -40,5 +40,6 @@ urlpatterns = patterns('',
                            views.first_time,
                            name="first_time"),
                        url(r'help/', views.help, name="help"),
+                       url(r'^$', views.login_user),
                        )
 
