@@ -65,6 +65,14 @@ class CartItem(models.Model):
         return u"{} {} {}".format(self.cart.__unicode__(),
                                  self.journal.__unicode__(),
                                  self.preference.__unicode__())
+
+class Instrument(models.Model):
+    name = models.CharField(max_length=100)
+    
+class Project(models.Model):
+    acronym = models.CharField(max_length=20)
+    name = models.CharField(max_length=400)
+    instrument = models.ForeignKey(Instrument)
     
 class UserProfile(models.Model):
     user = models.OneToOneField(authmodels.User, related_name="user_profile",
@@ -72,7 +80,8 @@ class UserProfile(models.Model):
     subject_area = models.ForeignKey(SubjectArea)
     first_time = models.BooleanField(default=True)
     cart = models.ForeignKey(Cart)
-
+    project = models.ForeignKey(Project)
+    
     def mark_in_cart(self, journals):
         cart = self.cart
         cart_items = cart.cart_item_set.select_related('journal').all()

@@ -42,4 +42,3 @@ urlpatterns = patterns('',
                        url(r'help/', views.help, name="help"),
                        url(r'^$', views.login_user),
                        )
-
