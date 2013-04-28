@@ -68,10 +68,14 @@ class CartItem(models.Model):
 
 class Instrument(models.Model):
     name = models.CharField(max_length=100)
+
+class Institute(models.Model):
+    name = models.CharField(max_length=200)
     
 class Project(models.Model):
     acronym = models.CharField(max_length=20)
     name = models.CharField(max_length=400)
+    institute = models.ForeignKey(Institute)
     instrument = models.ForeignKey(Instrument)
     
 class UserProfile(models.Model):
