@@ -7,7 +7,7 @@
 {% block content %}
   <form class="form-horizontal" method="post">{% csrf_token %}
     <legend>Στοιχεία Χρήστη</legend>
-   {% if form.changes_saved %}
+   {% if changes_saved %}
       <p class="text-success">
         Οι αλλαγές αποθηκεύτηκαν επιτυχώς.
       </p>

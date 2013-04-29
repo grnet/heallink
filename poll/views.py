@@ -284,6 +284,7 @@ def cart_item_delete(request, issn):
 def user(request):
     user = request.user
     user_profile = user.user_profile
+    changes_saved = False
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
@@ -299,7 +300,7 @@ def user(request):
                 user.password = make_password(password)
             user.save()
             user_profile.save()
-            form.changes_saved = True
+            changes_saved = True
     else:
         form = UserForm(initial = {
             'username': user.username,
@@ -308,7 +309,10 @@ def user(request):
             'email': user.email,
             'subject_area_id': user_profile.subject_area_id,
         })
-    return render(request, 'poll/user.html', {'form': form,})
+    return render(request, 'poll/user.html', {
+        'form': form,
+        'changes_saved': changes_saved,
+    })
     
 def login_user(request):
     if request.method == 'POST':
@@ -349,7 +353,7 @@ def first_time(request):
                 subject_area_id = int(form.cleaned_data['subject_area'])
                 user_profile = user.user_profile
                 user_profile.initialize_cart(subject_area_id)
-                return redirect('journals')
+                return redirect('help')
             else:
                 form.non_field_errors = 'Invalid user'
         else:
@@ -357,11 +361,8 @@ def first_time(request):
     else:
         form = FirstTimeForm()
     return render(request, 'poll/first_time.html', {'form': form,})
-
+ 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
 def help(request):
     return render(request, 'poll/help.html')
-
-def custom_404(request):
-    return render(request, 'poll/404.html')

@@ -3,6 +3,8 @@
 {% block title %}HEAL-Link Είσοδος{% endblock %}
 
 {% block main %}
+
+{% load staticfiles %}  
 <div id="wrap" class="body-signin">
   <div class="form-signin-container">
     <div class="container">
@@ -12,7 +14,7 @@
         <h2 class="form-signin-heading">Στοιχεία Εισόδου</h2>
         {{ form.username.errors }}
         <input type="text" class="input-block-level"
-               placeholder="Όνομα χρήστη"
+               placeholder="Λογαριασμός"
                name="username"
                id="id_username"
                value="{{ form.username.value|default:'' }}"/>
@@ -27,7 +29,7 @@
          </button>
          </center>
       </form>
-            <p>
+      <p>
         Στην παρούσα έρευνα καλούνται να συμμετέχουν όλοι οι επιστημονικοί
         υπεύθυνοι/συντονιστές των Ερευνητικών Δράσεων/Προγραμμάτων που
         χρηματοδοτούνται από το Επιχειρησιακό Πρόγραμμα &laquo;Εκπαίδευση
@@ -49,11 +51,23 @@
         διαφορετικά Προγράμματα/Δράσεις, απαντήστε
         σε καθεμία από αυτές ξεχωριστά και ανάλογα με τις ειδικές
         απαιτήσεις σε πηγές επιστημονικής πληροφόρησης.
-     </p>
-            
+     </p>            
     </div> <!-- container -->
   </div>
   <div id="push"></div>
+  <div>
+    <center>
+      <img src="{% static "poll/img/grnet1.jpg" %}" alt="GRNET"
+           class="img-rounded" width="100"/>
+      <img src="{% static "poll/img/logoHEAL2013_GR_EN.Web.fw.png" %}"
+           alt="HEAL-LINK"
+           class="img-rounded"
+           width="100"/>
+      <img src="{% static "poll/img/minedu_logo.png" %}"
+           alt="HEAL-LINK"
+           class="img-rounded"/>
+   </center>
+  </div>
 </div> <!-- wrap -->
 {% endblock main %}
 </html>
