@@ -19,6 +19,8 @@ class UserForm(forms.Form):
     username.widget.attrs['readonly'] = True
     email = forms.EmailField()
     email.widget.attrs['readonly'] = True
+    project = forms.CharField()
+    project.widget.attrs['readonly'] = True    
     password = forms.CharField(required=False,
                                widget=forms.PasswordInput(attrs = {
                                    'placeholder': 'Κωδικός',

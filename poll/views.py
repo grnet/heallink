@@ -302,11 +302,13 @@ def user(request):
             user_profile.save()
             changes_saved = True
     else:
+        project = user_profile.project
         form = UserForm(initial = {
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
+            'project': project,
             'subject_area_id': user_profile.subject_area_id,
         })
     return render(request, 'poll/user.html', {
