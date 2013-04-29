@@ -40,9 +40,9 @@ $(document).ready(function(){
         if (!clicked.is(':checked')) {
             verb = 'DELETE';
         }
-        var issn = clicked.attr('value');
+        var journal_id = clicked.attr('value');
         var data = {
-            'issn': issn,
+            'journal-id': journal_id,
         };
         $.ajax({
             'type': verb,

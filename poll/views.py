@@ -151,8 +151,8 @@ def cart_item(request):
     cart = user_profile.cart
     if not request.is_ajax():
         return redirect('journals')
-    issn = json.loads(request.body)['issn']
-    journal = Journal.objects.filter(issn=issn)
+    journal_id = json.loads(request.body)['journal-id']
+    journal = Journal.objects.filter(id=journal_id)
     if not journal.exists():
         return redirect('journals')
     if request.method == 'POST':
