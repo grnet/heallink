@@ -7,7 +7,19 @@
 {% block content %}
   <form class="form-horizontal" method="post">{% csrf_token %}
     <legend>Στοιχεία Χρήστη</legend>
+   {% if form.changes_saved %}
+      <p class="text-success">
+        Οι αλλαγές αποθηκεύτηκαν επιτυχώς.
+      </p>
+    {% endif %}    
     {{ form.non_field_errors }}
+    <div class="control-group">
+      <label class="control-label" for "id_username">Λογαριασμός</label>
+      <div class="controls">
+        {{ form.username.errors }}        
+        {{ form.username }}
+      </div>
+    </div>    
     <div class="control-group">
       <label class="control-label" for "id_first_name">Όνομα</label>
       <div class="controls">

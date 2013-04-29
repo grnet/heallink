@@ -15,6 +15,8 @@ class FirstTimeForm(forms.Form):
 class UserForm(forms.Form):
     first_name = forms.CharField()
     last_name = forms.CharField()
+    username = forms.CharField()
+    username.widget.attrs['readonly'] = True
     email = forms.EmailField()
     email.widget.attrs['readonly'] = True
     password = forms.CharField(required=False,

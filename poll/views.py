@@ -299,8 +299,10 @@ def user(request):
                 user.password = make_password(password)
             user.save()
             user_profile.save()
+            form.changes_saved = True
     else:
         form = UserForm(initial = {
+            'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,

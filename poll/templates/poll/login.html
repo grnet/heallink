@@ -10,12 +10,12 @@
       <form class="form-signin" method="post">{% csrf_token %}
         {{ form.non_field_errors }}
         <h2 class="form-signin-heading">Στοιχεία Εισόδου</h2>
-        {{ form.email_address.errors }}
+        {{ form.username.errors }}
         <input type="text" class="input-block-level"
-               placeholder="Διεύθυνση e-mail"
+               placeholder="Όνομα χρήστη"
                name="username"
                id="id_username"
-               value="{{ form.email_address.value|default:'' }}"/>
+               value="{{ form.username.value|default:'' }}"/>
         {{ form.password.errors }}
         <input type="password" class="input-block-level"
                placeholder="Κωδικός"
