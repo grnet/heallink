@@ -13,6 +13,8 @@ from models import Journal, SubjectArea, Cart, CartItem
 
 from forms import LoginForm, FirstTimeForm, UserForm
 
+from django.views.decorators.cache import cache_control
+
 import json
 import math
 
@@ -142,7 +144,8 @@ def cart_empty(request):
     cart = user_profile.cart
     cart.empty()
     return render(request, 'poll/cart.html')
-    
+   
+@cache_control(must_revalidate=True, max_age=3600) 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
 def cart_item(request):
