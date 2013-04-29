@@ -32,7 +32,7 @@
         </tr>
         {% for cart_item in cart_item_list %}
           <tr>
-            {% with issn=cart_item.journal.issn %}
+            {% with journal_id=cart_item.journal.id %}
               <td class="cart-issn">{{ issn }}</td>
               <td class="cart-title">{{ cart_item.journal.title }}</td>
               <td class="cart-downloads">{{ cart_item.journal.downloads }}</td>
@@ -49,32 +49,32 @@
                   </a>
                   <ul class="dropdown-menu">
                     <li>
-                      <a href="/poll/cart-item/{{ issn }}/top">
+                      <a href="/poll/cart-item/{{ journal_id }}/top">
                         <i class="icon-arrow-up"></i>
                         <i class="icon-arrow-up"></i>Πρώτο
                       </a>
                     </li>
                     <li>
                       <a class="cart-item-up"
-                         href="/poll/cart-item/{{ issn }}/up">
+                         href="/poll/cart-item/{{ journal_id }}/up">
                         <i class="icon-arrow-up"></i>
                         <i class="icon-white"></i>Επάνω
                       </a>
                     </li>
                     <li>
-                      <a href="/poll/cart-item/{{ issn }}/down">
+                      <a href="/poll/cart-item/{{ journal_id }}/down">
                         <i class="icon-arrow-down"></i>
                         <i class="icon-white"></i>Κάτω
                       </a>
                     </li>
                     <li>
-                      <a href="/poll/cart-item/{{ issn }}/bottom">
+                      <a href="/poll/cart-item/{{ journal_id }}/bottom">
                         <i class="icon-arrow-down"></i>
                         <i class="icon-arrow-down"></i>Τελευταίο
                       </a>
                     </li>
                     <li class="divider"></li>
-                    <li><a href="/poll/cart-item/{{ issn }}/delete">
+                    <li><a href="/poll/cart-item/{{ journal_id }}/delete">
                         <i class="icon-trash"></i>Διαγραφή</a>
                     </li>
                   </ul>

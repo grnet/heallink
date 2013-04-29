@@ -173,11 +173,11 @@ def cart_item(request):
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
-def cart_item_top(request, issn):
+def cart_item_top(request, journal_id):
     user = request.user
     user_profile = user.user_profile
     cart = user_profile.cart
-    journal = Journal.objects.filter(issn=issn)
+    journal = Journal.objects.filter(id=journal_id)
     if not journal.exists():
         return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
@@ -195,11 +195,11 @@ def cart_item_top(request, issn):
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
-def cart_item_up(request, issn):
+def cart_item_up(request, journal_id):
     user = request.user
     user_profile = user.user_profile
     cart = user_profile.cart
-    journal = Journal.objects.filter(issn=issn)
+    journal = Journal.objects.filter(id=journal_id)
     if not journal.exists():
         return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
@@ -218,11 +218,11 @@ def cart_item_up(request, issn):
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
-def cart_item_down(request, issn):
+def cart_item_down(request, journal_id):
     user = request.user
     user_profile = user.user_profile
     cart = user_profile.cart
-    journal = Journal.objects.filter(issn=issn)
+    journal = Journal.objects.filter(id=journal_id)
     if not journal.exists():
         return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
@@ -242,11 +242,11 @@ def cart_item_down(request, issn):
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
-def cart_item_bottom(request, issn):
+def cart_item_bottom(request, journal_id):
     user = request.user
     user_profile = user.user_profile
     cart = user_profile.cart
-    journal = Journal.objects.filter(issn=issn)
+    journal = Journal.objects.filter(id=journal_id)
     if not journal.exists():
         return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
@@ -265,11 +265,11 @@ def cart_item_bottom(request, issn):
 
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
-def cart_item_delete(request, issn):
+def cart_item_delete(request, journal_id):
     user = request.user
     user_profile = user.user_profile
     cart = user_profile.cart
-    journal = Journal.objects.filter(issn=issn)
+    journal = Journal.objects.filter(id=journal_id)
     if not journal.exists():
         return redirect('cart')
     cart_item_set = cart.cart_item_set.filter(journal=journal)
