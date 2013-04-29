@@ -69,14 +69,25 @@ class CartItem(models.Model):
 class Instrument(models.Model):
     name = models.CharField(max_length=100)
 
+    def __unicode__(self):
+        return self.name
+    
+
 class Institute(models.Model):
     name = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.name
     
 class Project(models.Model):
     acronym = models.CharField(max_length=20)
     name = models.CharField(max_length=400)
     institute = models.ForeignKey(Institute)
     instrument = models.ForeignKey(Instrument)
+
+    def __unicode__(self):
+        return u"{} {}".format(self.acronym,
+                               self.instrument.__unicode__())
     
 class UserProfile(models.Model):
     user = models.OneToOneField(authmodels.User, related_name="user_profile",
