@@ -86,15 +86,13 @@ class Project(models.Model):
     instrument = models.ForeignKey(Instrument)
 
     def __unicode__(self):
-        return u"{} {}".format(self.acronym,
-                               self.instrument.__unicode__())
+        return u"{} {}".format(self.acronym, self.name)
     
 class UserProfile(models.Model):
-    user = models.OneToOneField(authmodels.User, related_name="user_profile",
-                                unique=False)
+    user = models.OneToOneField(authmodels.User, related_name="user_profile")
     subject_area = models.ForeignKey(SubjectArea)
     first_time = models.BooleanField(default=True)
-    cart = models.ForeignKey(Cart)
+    cart = models.OneToOneField(Cart, related_name="user_profile")
     project = models.ForeignKey(Project)
     
     def mark_in_cart(self, journals):
