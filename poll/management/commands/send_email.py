@@ -21,7 +21,7 @@ from collections import defaultdict
 class Command(BaseCommand):
     help = """Sends user invitations.
 If no users file is given, users are taken from the command line,
-unless the -a option is passed, in which case invitations are sent
+unless the -a option is passed, in which case messages are sent
 to all users currently in the the database.
 
 If the -p option is passed, it must be the location of a file
@@ -99,61 +99,68 @@ found in the fixtures directory.
                 ),                
     )
 
-    def send_invitations(self, users, options):
+    def make_invite(self, user, mapping, message_template):
+        mapping.update({
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'username': user.username,
+        })
+        try:
+            up = user.user_profile            
+            project = up.project
+            mapping.update({
+                'project_acronym': project.acronym,
+                'project_name': project.name,
+            })
+            instrument = project.instrument
+            mapping['instrument_name'] = instrument.name
+            institute = project.institute
+            mapping['institute_name'] = institute.name
+        except ObjectDoesNotExist:
+            pass
+        if message_template is not None:
+            message = message_template.safe_substitute(mapping)
+        else:
+              message = ""
+        return message
+                
+    def send_email(self, args, options):
         passwords = defaultdict(lambda: '')
-        with open(options['passwords_file'], 'r') as passwords_file:
-            p_reader = csv.reader(passwords_file)
-            for row in p_reader:
-                passwords[row[-2]] = row[-1]
+        if os.path.isfile(options['passwords_file']):
+            with open(options['passwords_file'], 'r') as passwords_file:
+                p_reader = csv.reader(passwords_file)
+                for row in p_reader:
+                    passwords[row[-2]] = row[-1]
         message_template = None
-        if options['message_file']:
+        if os.path.isfile(options['message_file']):
             with open(options['message_file'], 'r') as message_file:
                 message_template = Template(message_file.read().decode('utf-8'))
         if options['all']:
             users = User.objects.all()
+        elif options['input_file']:
+            with open(options['input_file'], 'r') as usernames_file:
+                users = usernames_file.readlines()
+        else:
+            users = User.objects.filter(username__in=args)
         for user in users:
-            if not User.objects.filter(username=user).exists():
-                continue
-            u = User.objects.filter(username=user)[0]
-            up = u.user_profile
-            mapping = {
-                'first_name': u.first_name,
-                'last_name': u.last_name,
-                'username': u.username,
-                'password': passwords[u.username],
-            }
-            try:
-                project = up.project
-                mapping.update({
-                    'project_acronym': project.acronym,
-                    'project_name': project.name,
-                })
-                instrument = project.instrument
-                mapping['instrument_name'] = instrument.name
-                institute = project.institute
-                mapping['institute_name'] = institute.name
-            except ObjectDoesNotExist:
-                pass
-            if message_template is not None:
-                message = message_template.safe_substitute(mapping)
-            else:
-                message = ""
-            if options['console_back_end']:
-                settings.EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-            if options['file_back_end']:
-                settings.EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-                settings.EMAIL_FILE_PATH = options['file_back_end']
+            message = self.make_invite(user,
+                                       {'password': passwords[user.username]},
+                                       message_template)
             send_mail(options['subject'], message,
                       options['from'],
-                      [u.email], fail_silently=False)
+                      [user.email], fail_silently=False)
             
     def handle(self, *args, **options):
-        
-        if options['input_file']:
-            with open(options['input_file'], 'r') as users_file:        
-                self.send_invitations(users_file, options)
-        else:
-            self.send_invitations(args, options)
 
+        original_back_end = settings.EMAIL_BACKEND
+        if options['console_back_end']:
+            settings.EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+        if options['file_back_end']:
+            settings.EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+            settings.EMAIL_FILE_PATH = options['file_back_end']
+
+        self.send_email(args, options)
+        settings.EMAIL_BACKEND = original_back_end
+        
         
         
