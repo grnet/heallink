@@ -22,7 +22,8 @@ class Command(BaseCommand):
     help = """Sends user invitations.
 If no users file is given, users are taken from the command line,
 unless the -a option is passed, in which case messages are sent
-to all users currently in the the database.
+to all users currently in the the database, or the -i option is passed,
+in which case messages are sent to the users contained in the input file.
 
 If the -p option is passed, it must be the location of a file
 output by the make_users command; otherwise, it assumes that the file
