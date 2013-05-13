@@ -67,7 +67,7 @@ class CartItem(models.Model):
                                  self.preference.__unicode__())
 
 class Instrument(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
 
     def __unicode__(self):
         return self.name
