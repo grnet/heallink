@@ -70,8 +70,7 @@ If no input file is given, reads users.csv from fixtures"""
                     username = "{}_{}".format(base_username, i)
                     i += 1
                 u = User.objects.create_user(username=username,
-                                             email=email,
-                                             password=username)
+                                             email=email)
                 passwd = ''.join(random.choice(string.ascii_lowercase +
                                                string.digits)
                                  for x in range(10))
