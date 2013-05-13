@@ -22,7 +22,7 @@ class Command(BaseCommand):
     help = """Sends user invitations.
 If no users file is given, users are taken from the command line,
 unless the -a option is passed, in which case messages are sent
-to all users currently in the the database, or the -i option is passed,
+to ill users currently in the the database, or the -i option is passed,
 in which case messages are sent to the users contained in the input file.
 
 If the -p option is passed, it must be the location of a file
@@ -140,7 +140,7 @@ found in the fixtures directory.
             users = User.objects.all()
         elif options['input_file']:
             with open(options['input_file'], 'r') as usernames_file:
-                usernames = usernames_file.readlines()
+                usernames = [x.rstrip() for x in usernames_file.readlines()]
                 users = User.objects.filter(username__in=usernames)
         else:
             users = User.objects.filter(username__in=args)
