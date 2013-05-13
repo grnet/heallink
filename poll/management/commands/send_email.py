@@ -140,7 +140,8 @@ found in the fixtures directory.
             users = User.objects.all()
         elif options['input_file']:
             with open(options['input_file'], 'r') as usernames_file:
-                users = usernames_file.readlines()
+                usernames = usernames_file.readlines()
+                users = User.objects.filter(username__in=usernames)
         else:
             users = User.objects.filter(username__in=args)
         for user in users:
