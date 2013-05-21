@@ -35,7 +35,8 @@ class Journal(models.Model):
 
     @classmethod
     def count_selected(cls):
-        journals = Journal.objects
+        journals = Journal.objects.select_related('subject_area',
+                                                  'publisher')
         counted = journals.annotate(num_selected=models.Count('cart_item'))
         filtered = counted.filter(num_selected__gt=0)
         return filtered.order_by('-num_selected')
@@ -47,8 +48,8 @@ class Journal(models.Model):
         ballots = []
         for cart in carts:
             items = cart.cart_item_set.order_by('preference')
-            items.select_related('journal', 'journal__subject_area',
-                                 'journal__publisher')
+            items = items.select_related('journal', 'journal__subject_area',
+                                         'journal__publisher')
             ballots.append([item.journal for item in items])
         print "Number of ballots:", len(ballots)
         sc = SchulzeCalculator(ballots)
@@ -64,7 +65,7 @@ class Journal(models.Model):
         top_score = biggest_cart.num_items
         for cart in filtered:
             items = cart.cart_item_set.select_related('journal',
-                                                      'journal_subject_area',
+                                                      'journal__subject_area',
                                                       'journal__publisher')
             for item in items:
                 journal = item.journal
