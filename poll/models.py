@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth import models as authmodels
 
+from collections import defaultdict, Counter
+from itertools import combinations
+
+from utils import SchulzeCalculator
+
 class SubjectArea(models.Model):
     name = models.CharField(max_length=200)
     ordering = models.IntegerField(null=False, db_index=True, unique=True)
@@ -28,6 +33,44 @@ class Journal(models.Model):
     downloads = models.IntegerField(null=True)
     subject_area = models.ForeignKey(SubjectArea)
     publisher = models.ForeignKey(Publisher)
+
+    @classmethod
+    def count_selected(cls):
+        journals = Journal.objects
+        counted = journals.annotate(num_selected=models.Count('cart_item'))
+        filtered = counted.filter(num_selected__gt=0)
+        return filtered.order_by('-num_selected')
+
+    @classmethod
+    def count_schulze(cls):
+        pairwise_matrix = defaultdict(Counter)        
+        carts = Cart.objects.all()
+        ballots = []
+        for cart in carts:
+            items = cart.cart_item_set.order_by('preference')
+            items.select_related('journal', 'journal__subject_area',
+                                 'journal__publisher')
+            ballots.append([item.journal for item in items])
+        print "Number of ballots:", len(ballots)
+        sc = SchulzeCalculator(ballots)
+        return sc.results
+
+    @classmethod
+    def count_range(cls):
+        results = Counter()
+        carts = Cart.objects
+        counted = carts.annotate(num_items=models.Count('cart_item_set'))
+        filtered = counted.filter(num_items__gt=0)
+        biggest_cart = filtered.order_by('-num_items')[0]
+        top_score = biggest_cart.num_items
+        for cart in filtered:
+            items = cart.cart_item_set.select_related('journal',
+                                                      'journal_subject_area',
+                                                      'journal__publisher')
+            for item in items:
+                journal = item.journal
+                results[journal] += top_score - item.preference + 1
+        return results.most_common()
         
     def __unicode__(self):
         return u"{} {} {} {} {} {}".format(self.issn,
@@ -49,7 +92,7 @@ class Cart(models.Model):
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='cart_item_set')
-    journal = models.ForeignKey(Journal)
+    journal = models.ForeignKey(Journal, related_name='cart_item')
     preference = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -62,10 +105,9 @@ class CartItem(models.Model):
             cart_item.save()
     
     def __unicode__(self):
-        return u"{} {} {}".format(self.cart.__unicode__(),
-                                 self.journal.__unicode__(),
-                                 self.preference.__unicode__())
-
+        return u"{} {} {}".format(self.cart,
+                                  self.journal,
+                                  self.preference)
 class Instrument(models.Model):
     name = models.CharField(max_length=200)
 

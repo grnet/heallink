@@ -20,7 +20,8 @@ import string
 
 class Command(BaseCommand):
     help = """Initialises user data.
-If no input file is given, reads users.csv from fixtures"""
+If no input file is given, reads users.csv from fixtures. Outputs the users
+in standard output."""
     option_list = BaseCommand.option_list + (
         make_option('-i',
                     '--input',
