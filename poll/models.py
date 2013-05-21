@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import models as authmodels
 
 from collections import defaultdict, Counter
-from itertools import combinations
 
 from utils import SchulzeCalculator
 
