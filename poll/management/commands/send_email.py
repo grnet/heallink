@@ -2,9 +2,10 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.mail import send_mail
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.conf import settings
+from django.core.mail import get_connection
 
 import poll
+
 from poll.models import UserProfile
 from django.contrib.auth.models import User
 
@@ -17,6 +18,10 @@ import csv
 from string import Template
 
 from collections import defaultdict
+
+CONSOLE_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+SMTP_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+FILEBASED_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 
 class Command(BaseCommand):
     help = """Sends user invitations.
@@ -126,6 +131,14 @@ found in the fixtures directory.
         return message
                 
     def send_email(self, args, options):
+        if options['file_back_end']:
+            backend = get_connection(FILEBASED_BACKEND,
+                                     file_path=options['file_back_end'])
+        elif options['console_back_end']:
+            backend = get_connection(CONSOLE_BACKEND)
+        else:
+            backend = get_connection(SMTP_BACKEND)
+        
         passwords = defaultdict(lambda: '')
         if os.path.isfile(options['passwords_file']):
             with open(options['passwords_file'], 'r') as passwords_file:
@@ -150,19 +163,11 @@ found in the fixtures directory.
                                        message_template)
             send_mail(options['subject'], message,
                       options['from'],
-                      [user.email], fail_silently=False)
+                      [user.email], fail_silently=False,
+                      connection=backend)
             
     def handle(self, *args, **options):
-
-        original_back_end = settings.EMAIL_BACKEND
-        if options['console_back_end']:
-            settings.EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-        if options['file_back_end']:
-            settings.EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-            settings.EMAIL_FILE_PATH = options['file_back_end']
-
         self.send_email(args, options)
-        settings.EMAIL_BACKEND = original_back_end
         
         
         
