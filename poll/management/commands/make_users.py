@@ -66,10 +66,10 @@ in standard output."""
                 (first_name, last_name) = name.split(None, 1)
                 base_username = email.split('@')[0].lower()
                 username = base_username
-                i = 2
+                j = 2
                 while User.objects.filter(username=username).exists():
-                    username = "{}_{}".format(base_username, i)
-                    i += 1
+                    username = "{}_{}".format(base_username, j)
+                    j += 1
                 u = User.objects.create_user(username=username,
                                              email=email)
                 passwd = ''.join(random.choice(string.ascii_lowercase +
