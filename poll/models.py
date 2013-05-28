@@ -34,14 +34,6 @@ class Journal(models.Model):
     publisher = models.ForeignKey(Publisher)
 
     @classmethod
-    def count_selected(cls):
-        journals = Journal.objects.select_related('subject_area',
-                                                  'publisher')
-        counted = journals.annotate(num_selected=models.Count('cart_item'))
-        filtered = counted.filter(num_selected__gt=0)
-        return filtered.order_by('-num_selected')
-
-    @classmethod
     def count_schulze(cls):
         pairwise_matrix = defaultdict(Counter)        
         carts = Cart.objects.all()
@@ -51,13 +43,15 @@ class Journal(models.Model):
             items = items.select_related('journal', 'journal__subject_area',
                                          'journal__publisher')
             ballots.append([item.journal for item in items])
-        print "Number of ballots:", len(ballots)
-        sc = SchulzeCalculator(ballots)
-        return sc.results
-
+            sc = SchulzeCalculator(ballots)
+            return sc.results
+    
     @classmethod
-    def count_range(cls):
-        results = Counter()
+    def count_results(cls):
+        results_per_journal = Counter()
+        seen = {}
+        results_per_journal_institute = Counter()
+        results_range = Counter()
         carts = Cart.objects
         counted = carts.annotate(num_items=models.Count('cart_item_set'))
         filtered = counted.filter(num_items__gt=0)
@@ -66,11 +60,24 @@ class Journal(models.Model):
         for cart in filtered:
             items = cart.cart_item_set.select_related('journal',
                                                       'journal__subject_area',
-                                                      'journal__publisher')
+                                                      'journal__publisher',
+                                                      'cart__user_profile__project__institute')
             for item in items:
                 journal = item.journal
-                results[journal] += top_score - item.preference + 1
-        return results.most_common()
+                try:
+                    institute = item.cart.user_profile.project.institute
+                except UserProfile.DoesNotExist:
+                    continue
+                results_range[journal] += top_score - item.preference + 1
+                results_per_journal[journal] += 1
+                if (journal, institute) not in seen:
+                    results_per_journal_institute[journal] += 1
+                    seen[(journal, institute)] = True
+        return ({
+            'journal': results_per_journal,
+            'journal_institute': results_per_journal_institute,
+            'range': results_range,
+        })
         
     def __unicode__(self):
         return u"{} {} {} {} {} {}".format(self.issn,
@@ -92,7 +99,7 @@ class Cart(models.Model):
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='cart_item_set')
-    journal = models.ForeignKey(Journal, related_name='cart_item')
+    journal = models.ForeignKey(Journal, related_name='cart_item_set')
     preference = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -167,6 +174,21 @@ class UserProfile(models.Model):
         self.first_time = False
         self.save()
 
+    @classmethod
+    def list_participants(cls):
+        participants = UserProfile.objects.select_related(
+            'user',
+            'project',
+            'project__institute',
+            'subject_area',
+            'cart__cart_item_set')
+        participants = participants.annotate(
+            num_preferences=models.Count('cart__cart_item_set'))
+        participants = participants.order_by('-num_preferences',
+                                             '-first_time',
+                                             'user__last_name')
+        return participants
+        
         
     def __unicode__(self):
         return u"{} {}".format(self.user, self.subject_area)

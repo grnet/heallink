@@ -368,3 +368,7 @@ def first_time(request):
 @user_passes_test(not_first_time, login_url='first_time')
 def help(request):
     return render(request, 'poll/help.html')
+
+def results(request):
+    return render(request, 'poll/results.html')
+

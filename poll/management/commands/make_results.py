@@ -3,7 +3,7 @@
 
 from django.core.management.base import BaseCommand, CommandError
 import poll
-from poll.models import Journal
+from poll.models import Journal, UserProfile
 
 from django.db import transaction
 
@@ -16,59 +16,87 @@ import random
 import string
 
 class Command(BaseCommand):
-    help = """Produces poll results.
-Outputs journals, in decreasing order, in CSV format to standard output.
-    """
+    help = """Produces poll results."""
     option_list = BaseCommand.option_list + (
-        make_option('-s',
-                    '--selected',
+        make_option('-c',
+                    '--count',
                     action='store_true',
-                    dest='selected',
-                    default=True,
-                    help='simple selection count',
+                    dest='count',
+                    help='count results',
                 ),
-        make_option('-r',
-                    '--range',
+        make_option('-t',
+                    '--took_part',
                     action='store_true',
-                    dest='range',
-                    help='preference counting (range voting)',
-                ),        
+                    dest='participants',
+                    help='list participants',
+                ),                
     )
     pth = os.path.abspath(poll.__path__[0])
         
-    def count_selected(self):
-        results = Journal.count_selected()
+    def count_results(self):
+        results = Journal.count_results()
         r_writer = csv.writer(sys.stdout)
-        for result in results:
+        r_writer.writerow([
+            'issn',
+            'title',
+            'url',
+            'downloads',
+            'subject area',
+            'publisher',
+            'num selected',
+            'num selected by institute',
+            'points',
+        ])
+        results_per_journal = results['journal']
+        results_per_journal_institute = results['journal_institute']
+        results_range = results['range']
+        for result in results['range'].most_common():
+            journal = result[0]
             r_writer.writerow([
-                result.issn,
-                result.title.encode('utf-8'),
-                result.url,
-                result.downloads,
-                result.subject_area.name.encode('utf-8'),
-                result.publisher.name.encode('utf-8'),
-                result.num_selected
+                journal.issn,
+                journal.title.encode('utf-8'),
+                journal.url,
+                journal.downloads,
+                journal.subject_area.name.encode('utf-8'),
+                journal.publisher.name.encode('utf-8'),
+                results_per_journal[journal],
+                results_per_journal_institute[journal],
+                result[1],
             ])
 
-    def count_range(self):
-        results = Journal.count_range()
+    def list_participants(self):
+        results = UserProfile.list_participants()
         r_writer = csv.writer(sys.stdout)
+        r_writer.writerow([
+            'acronym',
+            'name',
+            'institute',
+            'first name'
+            'last_name',
+            'email',
+            'subject_area',
+            'num_preferences',
+            'took_part',
+        ])
         for result in results:
-            r_writer.writerow([
-                result[0].issn,
-                result[0].title.encode('utf-8'),
-                result[0].url,
-                result[0].downloads,
-                result[0].subject_area.name.encode('utf-8'),
-                result[0].publisher.name.encode('utf-8'),
-                result[1]
-            ])
-                        
+            row = [
+                result.project.acronym,
+                result.project.name,
+                result.project.institute.name,
+                result.user.first_name,
+                result.user.last_name,
+                result.user.email,
+                result.subject_area.name,
+                str(result.num_preferences),
+                str(not result.first_time),
+            ]
+            r_writer.writerow([ s.encode("utf-8") for s in row])
+                     
     def handle(self, *args, **options):
-        if options['range']:
-            self.count_range()
-        elif options['selected']:
-            self.count_selected()
+        if options['count']:
+            self.count_results()
+        elif options['participants']:
+            self.list_participants()
 
         
         
