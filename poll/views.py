@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 
 from django.http import HttpResponse
 
+from django.conf import settings
+
 from models import Journal, SubjectArea, Cart, CartItem
 
 from forms import LoginForm, FirstTimeForm, UserForm
@@ -19,6 +21,11 @@ import math
 OFFSET = 0 
 LIMIT = 200
 
+def is_poll_finished():
+    if (hasattr(settings, 'POLL_FINISHED') and settings.POLL_FINISHED == True):
+        return True
+    else:
+        return False
 
 def not_first_time(user):
     user_profile = user.user_profile
@@ -124,13 +131,15 @@ def search_journals(request, offset=None, limit=None):
 @login_required(login_url='login')
 @user_passes_test(not_first_time, login_url='first_time')
 def cart(request):
-    user = request.user
+    user = request.user    
     user_profile = user.user_profile
     cart = user_profile.cart
     cart_item_list = CartItem.objects.filter(cart=cart).order_by('preference')
+    poll_finished = is_poll_finished()
     context = {
         'cart': cart,
-        'cart_item_list': cart_item_list
+        'cart_item_list': cart_item_list,
+        'poll_finished': poll_finished,
     }
     return render(request, 'poll/cart.html', context)
 
@@ -370,5 +379,7 @@ def help(request):
     return render(request, 'poll/help.html')
 
 def results(request):
-    return render(request, 'poll/results.html')
+    poll_finished = is_poll_finished()
+    return render(request, 'poll/results.html',
+                  {'poll_finished': poll_finished})
 

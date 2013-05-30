@@ -7,16 +7,18 @@
 {% block content %}
   <div class="row-fluid">
     <div class="span9"><h1>Επιλογές</h1></div>
-    <div class="span3 cart-trash">
+    {% if not poll_finished %} 
+      <div class="span3 cart-trash">
       {% if cart_item_list %}
-      <form id="cart-empty" action="/poll/cart/empty" method="post">
-        {% csrf_token %}
-        <button class="btn">
-          <i class="icon-trash"></i> Διαγραφή Όλων
-        </button>
-      </form>
+        <form id="cart-empty" action="/poll/cart/empty" method="post">
+          {% csrf_token %}
+          <button class="btn">
+            <i class="icon-trash"></i> Διαγραφή Όλων
+          </button>
+        </form>
       {% endif %}
-    </div>
+      </div>
+    {% endif %}
   </div>
   {% if cart_item_list %}
     <div class="cart-table-container">
@@ -28,7 +30,9 @@
           <th class="url">URL</th>
           <th class="publisher">Εκδότης</th>
           <th class="preference">Προτίμηση</th>
-          <th></th>
+          {% if not poll_finished %}
+            <th></th>
+          {% endif %}            
         </tr>
         {% for cart_item in cart_item_list %}
           <tr>
@@ -39,47 +43,49 @@
               <td><a href="{{ cart_item.journal.url }}">Σύνδεσμος</a></td>
               <td class="cart-publisher">{{ cart_item.journal.publisher }}</td>
               <td class="cart-preference">{{ cart_item.preference }}</td>
-              <td>
-                <div class="btn-group">
-                  <a class="btn btn-primary" href="#">
-                    <i class="icon-list icon-white"></i></a>
-                  <a class="btn btn-primary dropdown-toggle"
-                     data-toggle="dropdown"
-                     href="#"><span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="/poll/cart-item/{{ journal_id }}/top">
-                        <i class="icon-arrow-up"></i>
-                        <i class="icon-arrow-up"></i>Πρώτο
-                      </a>
-                    </li>
-                    <li>
-                      <a class="cart-item-up"
-                         href="/poll/cart-item/{{ journal_id }}/up">
-                        <i class="icon-arrow-up"></i>
-                        <i class="icon-white"></i>Επάνω
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/poll/cart-item/{{ journal_id }}/down">
-                        <i class="icon-arrow-down"></i>
-                        <i class="icon-white"></i>Κάτω
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/poll/cart-item/{{ journal_id }}/bottom">
-                        <i class="icon-arrow-down"></i>
-                        <i class="icon-arrow-down"></i>Τελευταίο
-                      </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li><a href="/poll/cart-item/{{ journal_id }}/delete">
-                        <i class="icon-trash"></i>Διαγραφή</a>
-                    </li>
-                  </ul>
-                </div>
-              </td>
+              {% if not poll_finished %}
+                <td>
+                  <div class="btn-group">
+                    <a class="btn btn-primary" href="#">
+                      <i class="icon-list icon-white"></i></a>
+                    <a class="btn btn-primary dropdown-toggle"
+                       data-toggle="dropdown"
+                       href="#"><span class="caret"></span>
+                       </a>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <a href="/poll/cart-item/{{ journal_id }}/top">
+                          <i class="icon-arrow-up"></i>
+                          <i class="icon-arrow-up"></i>Πρώτο
+                        </a>
+                      </li>
+                      <li>
+                        <a class="cart-item-up"
+                           href="/poll/cart-item/{{ journal_id }}/up">
+                           <i class="icon-arrow-up"></i>
+                           <i class="icon-white"></i>Επάνω
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/poll/cart-item/{{ journal_id }}/down">
+                          <i class="icon-arrow-down"></i>
+                          <i class="icon-white"></i>Κάτω
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/poll/cart-item/{{ journal_id }}/bottom">
+                          <i class="icon-arrow-down"></i>
+                          <i class="icon-arrow-down"></i>Τελευταίο
+                        </a>
+                      </li>
+                      <li class="divider"></li>
+                      <li><a href="/poll/cart-item/{{ journal_id }}/delete">
+                          <i class="icon-trash"></i>Διαγραφή</a>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
+              {% endif %}
             {% endwith %}            
           </tr>
         {% endfor %}

@@ -175,19 +175,41 @@ class UserProfile(models.Model):
         self.save()
 
     @classmethod
-    def list_participants(cls):
+    def list_participant_preferences(cls):
         participants = UserProfile.objects.select_related(
             'user',
             'project',
             'project__institute',
             'subject_area',
             'cart__cart_item_set')
+        subject_areas = []
+        participants = participants.filter(first_time=False)
         participants = participants.annotate(
-            num_preferences=models.Count('cart__cart_item_set'))
-        participants = participants.order_by('-num_preferences',
-                                             '-first_time',
-                                             'user__last_name')
+            num_preferences=models.Count('cart__cart_item_set'))        
+        participants = participants.order_by('-num_preferences')
+
         return participants
+
+    @classmethod
+    def list_participant_detailed_preferences(cls):
+        participant_details = defaultdict(lambda: defaultdict(int))
+        subject_areas = SubjectArea.objects.all()
+        for subject_area in subject_areas:
+            participants = UserProfile.objects.select_related(
+                'user',
+                'subject_area',
+                'cart__cart_item_set__journal')
+            participants = participants.filter(first_time=False)
+            participants = participants.filter(
+                cart__cart_item_set__journal__subject_area_id=subject_area)
+            participants = participants.annotate(
+                num_preferences=models.Count('cart__cart_item_set'))            
+            for participant in participants.all():
+                num_preferences = participant.num_preferences
+                per_participant = participant_details[participant]
+                per_participant[subject_area] = num_preferences
+        return { 'subject_areas': subject_areas,
+                 'participant_details': participant_details, }
         
         
     def __unicode__(self):

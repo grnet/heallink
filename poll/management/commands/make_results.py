@@ -24,73 +24,86 @@ class Command(BaseCommand):
                     dest='count',
                     help='count results',
                 ),
-        make_option('-t',
-                    '--took_part',
+        make_option('-p',
+                    '--participants',
                     action='store_true',
                     dest='participants',
-                    help='list participants',
+                    help='list participants results',
                 ),                
     )
     pth = os.path.abspath(poll.__path__[0])
         
     def count_results(self):
         results = Journal.count_results()
-        r_writer = csv.writer(sys.stdout)
-        r_writer.writerow([
-            'issn',
-            'title',
-            'url',
-            'downloads',
-            'subject area',
-            'publisher',
-            'num selected',
-            'num selected by institute',
-            'points',
-        ])
-        results_per_journal = results['journal']
-        results_per_journal_institute = results['journal_institute']
-        results_range = results['range']
-        for result in results['range'].most_common():
-            journal = result[0]
+        csv_file_path = os.path.join(self.pth, 'static', 'poll', 'csv',
+                                     'results.csv')
+        json_file_path = os.path.join(self.pth, 'static', 'poll', 'json',
+                                      'results.json')        
+        with open(csv_file_path, 'w') as csvfile:
+            r_writer = csv.writer(csvfile)
             r_writer.writerow([
-                journal.issn,
-                journal.title.encode('utf-8'),
-                journal.url,
-                journal.downloads,
-                journal.subject_area.name.encode('utf-8'),
-                journal.publisher.name.encode('utf-8'),
-                results_per_journal[journal],
-                results_per_journal_institute[journal],
-                result[1],
+                'issn',
+                'title',
+                'url',
+                'downloads',
+                'subject area',
+                'publisher',
+                'num selected',
+                'num selected by institute',
+                'points',
             ])
+            results_per_journal = results['journal']
+            results_per_journal_institute = results['journal_institute']
+            results_range = results['range']
+            for result in results['range'].most_common():
+                journal = result[0]
+                r_writer.writerow([
+                    journal.issn,
+                    journal.title.encode('utf-8'),
+                    journal.url,
+                    journal.downloads,
+                    journal.subject_area.name.encode('utf-8'),
+                    journal.publisher.name.encode('utf-8'),
+                    results_per_journal[journal],
+                    results_per_journal_institute[journal],
+                    result[1],
+                ])
 
     def list_participants(self):
-        results = UserProfile.list_participants()
-        r_writer = csv.writer(sys.stdout)
-        r_writer.writerow([
-            'acronym',
-            'name',
-            'institute',
-            'first name'
-            'last_name',
-            'email',
-            'subject_area',
-            'num_preferences',
-            'took_part',
-        ])
-        for result in results:
-            row = [
-                result.project.acronym,
-                result.project.name,
-                result.project.institute.name,
-                result.user.first_name,
-                result.user.last_name,
-                result.user.email,
-                result.subject_area.name,
-                str(result.num_preferences),
-                str(not result.first_time),
+        participant_preferences = UserProfile.list_participant_preferences()
+        csv_file_path = os.path.join(self.pth, 'static', 'poll', 'csv',
+                                     'participants.csv')
+        json_file_path = os.path.join(self.pth, 'static', 'poll', 'json',
+                                      'participants.json')                
+        results = UserProfile.list_participant_detailed_preferences()
+        participant_details = results['participant_details']
+        subject_areas = results['subject_areas']
+        with open(csv_file_path, 'w') as csvfile:
+            r_writer = csv.writer(csvfile)
+            header = [
+                'acronym',
+                'project_name',
+                'institute',
+                'email',
+                'subject_area',
+                'num_preferences',
             ]
-            r_writer.writerow([ s.encode("utf-8") for s in row])
+            for subject_area in subject_areas:
+                header.append(subject_area.name.encode('utf-8'))
+            r_writer.writerow(header)
+            for participant in participant_preferences:
+                per_participant = participant_details[participant]
+                row = [
+                    participant.project.acronym,
+                    participant.project.name,
+                    participant.project.institute.name,
+                    participant.user.email,
+                    participant.subject_area.name,
+                    str(participant.num_preferences),
+                ]
+                for subject_area in subject_areas:
+                    row.append(str(per_participant[subject_area]))
+                r_writer.writerow([ s.encode("utf-8") for s in row])
                      
     def handle(self, *args, **options):
         if options['count']:
